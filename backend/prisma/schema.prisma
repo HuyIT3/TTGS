@@ -1,0 +1,154 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum ProfileStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ClassStatus {
+  OPEN
+  ASSIGNED
+  COMPLETED
+  CANCELLED
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  password      String
+  fullName      String
+  phone         String?
+  avatar        String?
+  role          Role            @default(STUDENT)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  tutorProfile  TutorProfile?
+  studentProfile StudentProfile?
+}
+
+model TutorProfile {
+  id           String          @id @default(uuid())
+  userId       String          @unique
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects     String[]        // e.g. ["Math", "Physics"]
+  bio          String?
+  experience   String?
+  certificates String[]        // Array of URLs
+  hourlyRate   Int             @default(0)
+  status       ProfileStatus   @default(PENDING)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  applications TutorApplication[]
+  classes      ClassActive[]
+  feedbacks    Feedback[]
+}
+
+model StudentProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade     String?
+  school    String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  classRequests ClassRequest[]
+  classes       ClassActive[]
+  feedbacks     Feedback[]
+}
+
+model ClassRequest {
+  id          String      @id @default(uuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  subject     String
+  grade       String
+  hourlyRate  Int         @default(0)
+  sessionsPerWeek Int     @default(1)
+  schedule    String      // e.g. "Monday evening, Saturday morning"
+  location    String      // e.g. "Online" or specific district
+  status      ClassStatus @default(OPEN)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  applications TutorApplication[]
+  classActive  ClassActive?
+}
+
+model TutorApplication {
+  id          String            @id @default(uuid())
+  classRequestId String
+  classRequest ClassRequest     @relation(fields: [classRequestId], references: [id], onDelete: Cascade)
+  tutorId     String
+  tutor       TutorProfile      @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  status      ApplicationStatus @default(PENDING)
+  notes       String?           // Proposal or intro message
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([classRequestId, tutorId])
+}
+
+model ClassActive {
+  id             String       @id @default(uuid())
+  classRequestId String       @unique
+  classRequest   ClassRequest @relation(fields: [classRequestId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        StudentProfile @relation(fields: [studentId], references: [id])
+  tutorId        String
+  tutor          TutorProfile @relation(fields: [tutorId], references: [id])
+  startDate      DateTime     @default(now())
+  endDate        DateTime?
+  status         ClassStatus  @default(ASSIGNED)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Feedback {
+  id          String       @id @default(uuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id])
+  tutorId     String
+  tutor       TutorProfile @relation(fields: [tutorId], references: [id])
+  rating      Int          @default(5)
+  comment     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([studentId, tutorId])
+}
+
+model SystemStat {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now()) @unique
+  revenue   Int      @default(0) // Revenue from commission
+  tutors    Int      @default(0) // Cumulative tutor count
+  students  Int      @default(0) // Cumulative student count
+  classes   Int      @default(0) // Cumulative active class count
+}
