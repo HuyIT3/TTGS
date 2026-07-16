@@ -11,6 +11,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { ChatbotWidget } from './components/ChatbotWidget';
+import { Footer } from './components/Footer';
 
 function App() {
   return (
@@ -31,10 +32,12 @@ function App() {
             </Routes>
             <ChatbotWidget />
           </div>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
   );
 }
+
 
 export default App;
