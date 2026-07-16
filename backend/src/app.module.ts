@@ -8,6 +8,8 @@ import { UsersModule } from './users/users.module';
 import { ClassesModule } from './classes/classes.module';
 import { StatsModule } from './stats/stats.module';
 import { ChatModule } from './chat/chat.module';
+import { EmailModule } from './email/email.module';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ChatModule } from './chat/chat.module';
     ClassesModule,
     StatsModule,
     ChatModule,
+    EmailModule,
+    OtpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

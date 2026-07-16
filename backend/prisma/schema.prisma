@@ -41,6 +41,7 @@ model User {
   avatar        String?
   role          Role            @default(STUDENT)
   isActive      Boolean         @default(true)
+  isVerified    Boolean         @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   
@@ -151,4 +152,15 @@ model SystemStat {
   tutors    Int      @default(0) // Cumulative tutor count
   students  Int      @default(0) // Cumulative student count
   classes   Int      @default(0) // Cumulative active class count
+}
+
+model Otp {
+  id        String   @id @default(uuid())
+  email     String
+  code      String
+  type      String   // "VERIFY_EMAIL", "FORGOT_PASSWORD"
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, type])
 }
