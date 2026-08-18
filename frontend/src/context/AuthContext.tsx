@@ -32,7 +32,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const storedUser = localStorage.getItem('user');
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      if (parsedUser.fullName === 'Phạm Minh Quân') {
+        parsedUser.fullName = 'Tuệ Vương';
+        localStorage.setItem('user', JSON.stringify(parsedUser));
+      }
+      setUser(parsedUser);
     }
   }, []);
 

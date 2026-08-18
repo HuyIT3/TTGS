@@ -32,8 +32,8 @@ async function main() {
     data: {
       email: 'tutor1@huyhoang.com',
       password: passwordHash,
-      fullName: 'Nguyễn Văn Hùng',
-      phone: '0912345678',
+      fullName: 'Dư Hoàng Huy',
+      phone: '0327169519',
       avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
       role: Role.TEACHER,
     },
@@ -42,10 +42,10 @@ async function main() {
     data: {
       userId: tutor1User.id,
       subjects: ['Toán học', 'Vật lý'],
-      bio: 'Cựu sinh viên Đại học Bách Khoa Hà Nội, có 5 năm kinh nghiệm ôn thi đại học môn Toán, Lý.',
-      experience: '5 năm kinh nghiệm gia sư cấp 3',
+      bio: 'Cựu sinh viên ĐH Sư phạm kỹ thuật TP HCM',
+      experience: '4 năm kinh nghiệm dạy và ôn thi thpt toán lý hóa cấp 2,3',
       certificates: ['https://images.unsplash.com/photo-1589330273594-fade1ee91647?w=300'],
-      hourlyRate: 200000,
+      hourlyRate: 100000,
       status: ProfileStatus.APPROVED,
     },
   });
@@ -54,7 +54,7 @@ async function main() {
     data: {
       email: 'tutor2@huyhoang.com',
       password: passwordHash,
-      fullName: 'Trần Thị Lan',
+      fullName: 'Cao Vũ Băng Truyền',
       phone: '0923456789',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       role: Role.TEACHER,
@@ -64,10 +64,10 @@ async function main() {
     data: {
       userId: tutor2User.id,
       subjects: ['Tiếng Anh', 'Ngữ văn'],
-      bio: 'Tốt nghiệp ĐH Sư Phạm chuyên ngành Sư phạm tiếng Anh. Đạt IELTS 8.0.',
-      experience: '3 năm dạy tại Trung tâm ngoại ngữ và gia sư',
+      bio: 'Tốt nghiệp đại học Ngân hàng HCM , toeic 830',
+      experience: '3 năm giảng dạy tại trung tâm gia sư tiếng anh',
       certificates: ['https://images.unsplash.com/photo-1589330273594-fade1ee91647?w=300'],
-      hourlyRate: 180000,
+      hourlyRate: 100000,
       status: ProfileStatus.APPROVED,
     },
   });
@@ -99,7 +99,7 @@ async function main() {
     data: {
       email: 'student1@huyhoang.com',
       password: passwordHash,
-      fullName: 'Phạm Minh Quân',
+      fullName: 'Tuệ Vương',
       phone: '0945678901',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
       role: Role.STUDENT,
@@ -137,15 +137,15 @@ async function main() {
   const request1 = await prisma.classRequest.create({
     data: {
       studentId: student1.id,
-      title: 'Tìm Gia sư Toán 12 ôn thi THPT Quốc Gia',
-      description: 'Cần tìm gia sư dạy Toán lớp 12 lấy lại gốc hình học và ôn luyện đề thi đại học.',
+      title: 'Lớp Toán 12 - Ôn thi THPT Quốc Gia',
+      description: 'Học Toán 12 nâng cao và luyện đề ôn thi tốt nghiệp THPT Quốc Gia cùng gia sư.',
       subject: 'Toán học',
       grade: 'Lớp 12',
-      hourlyRate: 200000,
-      sessionsPerWeek: 2,
-      schedule: 'Tối thứ 3 và tối thứ 5 (19:30 - 21:30)',
+      hourlyRate: 100000,
+      sessionsPerWeek: 3,
+      schedule: 'Thứ 2 (19:00 - 21:00), Thứ 7 (16:00 - 18:00), Chủ Nhật (14:00 - 16:00)',
       location: 'Quận Tây Hồ, Hà Nội',
-      status: ClassStatus.OPEN,
+      status: ClassStatus.ASSIGNED,
     },
   });
 
@@ -156,7 +156,7 @@ async function main() {
       description: 'Luyện đề thi tuyển sinh lớp 9 lên lớp 10 công lập, tập trung ngữ pháp và kỹ năng đọc hiểu.',
       subject: 'Tiếng Anh',
       grade: 'Lớp 9',
-      hourlyRate: 180000,
+      hourlyRate: 100000,
       sessionsPerWeek: 3,
       schedule: 'Chiều thứ 2, 4, 6 (15:00 - 17:00)',
       location: 'Quận Hoàn Kiếm, Hà Nội',
@@ -167,13 +167,13 @@ async function main() {
   const request3 = await prisma.classRequest.create({
     data: {
       studentId: student1.id,
-      title: 'Luyện thi cấp tốc Hóa học lớp 12',
-      description: 'Cần gia sư củng cố kiến thức hóa học hữu cơ lớp 12.',
-      subject: 'Hóa học',
+      title: 'Lớp Vật lý 12 - Củng cố kiến thức trọng tâm',
+      description: 'Học củng cố kiến thức Vật lý lớp 12 phục vụ thi đại học khối A.',
+      subject: 'Vật lý',
       grade: 'Lớp 12',
-      hourlyRate: 180000,
-      sessionsPerWeek: 2,
-      schedule: 'Sáng thứ 7 và Chủ nhật (8:30 - 10:30)',
+      hourlyRate: 100000,
+      sessionsPerWeek: 3,
+      schedule: 'Thứ 4 (19:00 - 21:00), Thứ 6 (18:00 - 20:00), Thứ 7 (10:00 - 12:00)',
       location: 'Online qua Zoom',
       status: ClassStatus.ASSIGNED,
     },
@@ -184,8 +184,8 @@ async function main() {
     data: {
       classRequestId: request1.id,
       tutorId: tutor1.id,
-      notes: 'Chào em, anh là Nguyễn Văn Hùng. Anh tự tin có thể hỗ trợ em ôn thi đại học đạt điểm số mong muốn.',
-      status: ApplicationStatus.PENDING,
+      notes: 'Chào em, anh là Dư Hoàng Huy. Anh tự tin có thể hỗ trợ em ôn thi đại học đạt điểm số mong muốn môn Toán.',
+      status: ApplicationStatus.ACCEPTED,
     },
   });
 
@@ -193,13 +193,22 @@ async function main() {
     data: {
       classRequestId: request2.id,
       tutorId: tutor2.id,
-      notes: 'Cô là Trần Thị Lan, với IELTS 8.0 và kinh nghiệm ôn luyện lớp 9 lên 10, cô sẽ giúp con lấy điểm cao môn tiếng Anh.',
+      notes: 'Cô là Cao Vũ Băng Truyền, với TOEIC 830 và kinh nghiệm dạy, cô sẽ giúp con học tốt tiếng Anh.',
       status: ApplicationStatus.PENDING,
     },
   });
 
   // 6. Tạo Lớp học Hoạt động
-  const activeClass = await prisma.classActive.create({
+  const activeClass1 = await prisma.classActive.create({
+    data: {
+      classRequestId: request1.id,
+      studentId: student1.id,
+      tutorId: tutor1.id,
+      status: ClassStatus.ASSIGNED,
+    },
+  });
+
+  const activeClass2 = await prisma.classActive.create({
     data: {
       classRequestId: request3.id,
       studentId: student1.id,
@@ -214,7 +223,7 @@ async function main() {
       studentId: student1.id,
       tutorId: tutor1.id,
       rating: 5,
-      comment: 'Anh Hùng giảng bài rất dễ hiểu, giúp em tiến bộ rất nhanh môn Toán và Lý!',
+      comment: 'Anh Huy giảng bài rất dễ hiểu, giúp em tiến bộ rất nhanh môn Toán và Lý!',
     },
   });
 

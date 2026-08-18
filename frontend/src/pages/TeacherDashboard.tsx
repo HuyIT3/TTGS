@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Sidebar } from '../components/Sidebar';
+import { ScheduleView } from '../components/ScheduleView';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -12,7 +13,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { BookOpen, DollarSign, Star, FileText, CheckCircle2, User, PlusCircle, Edit, X } from 'lucide-react';
+import { BookOpen, DollarSign, Star, FileText, CheckCircle2, User, PlusCircle, Edit, X, Ruler, PenTool, Compass, GraduationCap, Award, Sparkles } from 'lucide-react';
+import MaterialsView from '../components/MaterialsView';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -87,16 +89,32 @@ export const TeacherDashboard: React.FC = () => {
     {
       id: 'c-act-1',
       classRequest: {
-        title: 'Luyện thi cấp tốc Hóa học lớp 12',
-        subject: 'Hóa học',
+        title: 'Lớp Toán 12 - Ôn thi THPT Quốc Gia',
+        subject: 'Toán học',
         grade: 'Lớp 12',
-        hourlyRate: 180000,
-        sessionsPerWeek: 2,
-        schedule: 'Sáng thứ 7 và Chủ nhật (8:30 - 10:30)',
+        hourlyRate: 100000,
+        sessionsPerWeek: 3,
+        schedule: 'Thứ 2 (19:00 - 21:00), Thứ 7 (16:00 - 18:00), Chủ Nhật (14:00 - 16:00)',
+        location: 'Quận Tây Hồ, Hà Nội',
+      },
+      student: {
+        user: { fullName: 'Tuệ Vương', phone: '0945678901' }
+      },
+      status: 'ASSIGNED'
+    },
+    {
+      id: 'c-act-2',
+      classRequest: {
+        title: 'Lớp Vật lý 12 - Củng cố kiến thức trọng tâm',
+        subject: 'Vật lý',
+        grade: 'Lớp 12',
+        hourlyRate: 100000,
+        sessionsPerWeek: 3,
+        schedule: 'Thứ 4 (19:00 - 21:00), Thứ 6 (18:00 - 20:00), Thứ 7 (10:00 - 12:00)',
         location: 'Online qua Zoom',
       },
       student: {
-        user: { fullName: 'Phạm Minh Quân', phone: '0945678901' }
+        user: { fullName: 'Tuệ Vương', phone: '0945678901' }
       },
       status: 'ASSIGNED'
     }
@@ -255,7 +273,18 @@ export const TeacherDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)] w-full relative bg-slate-50 text-slate-800">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)] w-full relative bg-slate-50 text-slate-800 overflow-hidden">
+      {/* Educational Floating Background Icons */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.12] select-none">
+        <BookOpen className="absolute text-slate-900 w-24 h-24 top-12 left-1/4 animate-float-slow" />
+        <Ruler className="absolute text-slate-900 w-20 h-20 bottom-16 left-1/3 animate-float-slower" />
+        <PenTool className="absolute text-slate-900 w-16 h-16 top-1/3 right-1/4 animate-float-fast" />
+        <Compass className="absolute text-slate-900 w-24 h-24 bottom-24 right-1/3 animate-float-slow" />
+        <GraduationCap className="absolute text-slate-900 w-32 h-32 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin-slow" />
+        <Award className="absolute text-slate-900 w-20 h-20 top-20 right-10 animate-float-slower" />
+        <Sparkles className="absolute text-slate-900 w-16 h-16 bottom-10 left-10 animate-pulse-subtle" />
+      </div>
+
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col gap-8 relative z-10 animate-fade-in-up">
@@ -263,7 +292,7 @@ export const TeacherDashboard: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
             Gia sư Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-slate-550 mt-1">Theo dõi hoạt động giảng dạy, thống kê thu nhập và tìm lớp mới phù hợp</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Theo dõi hoạt động giảng dạy, thống kê thu nhập và tìm lớp mới phù hợp</p>
         </div>
 
         {/* Tab Stats */}
@@ -276,7 +305,7 @@ export const TeacherDashboard: React.FC = () => {
                 { label: 'Tổng thu nhập', count: `${currentStats.overview.totalEarnings.toLocaleString('vi-VN')}đ`, icon: <DollarSign size={20} />, bg: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
                 { label: 'Đánh giá', count: `${currentStats.overview.avgRating} / 5`, icon: <Star size={20} />, bg: 'bg-amber-50 text-amber-600 border-amber-100' },
               ].map((card, idx) => (
-                <div key={idx} className="bg-white border border-slate-200/80 p-6 rounded-2xl flex items-center gap-4 relative overflow-hidden group shadow-sm">
+                <div key={idx} className="glass-card p-6 rounded-2xl flex items-center gap-4 relative overflow-hidden group">
                   <div className={`p-3.5 rounded-xl ${card.bg} border shadow-inner`}>
                     {card.icon}
                   </div>
@@ -289,7 +318,7 @@ export const TeacherDashboard: React.FC = () => {
             </div>
 
             {/* Income chart */}
-            <div className="bg-white border border-slate-200/80 p-6 rounded-2xl flex flex-col gap-4 shadow-sm">
+            <div className="glass-panel p-6 rounded-2xl flex flex-col gap-4">
               <h3 className="font-bold text-slate-805 text-xs sm:text-sm tracking-wide">Biểu đồ Thu nhập tích lũy theo tháng</h3>
               <div className="h-72 w-full flex items-center justify-center bg-slate-50 p-2 rounded-xl border border-slate-100">
                 <Line
@@ -312,15 +341,15 @@ export const TeacherDashboard: React.FC = () => {
         {/* Tab Classes */}
         {activeTab === 'classes' && (
           <div className="flex flex-col gap-6">
-            <h3 className="font-bold text-slate-800 text-sm tracking-wide uppercase text-slate-450">Lớp học đang phụ trách</h3>
+            <h3 className="font-bold text-slate-800 text-sm tracking-wide uppercase text-slate-400">Lớp học đang phụ trách</h3>
             {activeClasses.length === 0 ? (
-              <div className="text-center py-16 text-slate-400 bg-white border border-slate-200/60 rounded-2xl shadow-sm">
+              <div className="text-center py-16 text-slate-400 glass-panel rounded-2xl">
                 Bạn chưa nhận lớp nào đang diễn ra.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {activeClasses.map((item) => (
-                  <div key={item.id} className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:border-sky-305 hover:shadow-md">
+                  <div key={item.id} className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden">
                     <div className="flex justify-between items-start">
                       <span className="px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-100 text-[10px] font-bold text-sky-600">
                         {item.classRequest.subject} - {item.classRequest.grade}
@@ -354,18 +383,29 @@ export const TeacherDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Tab Schedule */}
+        {activeTab === 'schedule' && (
+          <div className="flex flex-col gap-6">
+            <div>
+              <h3 className="font-bold text-slate-800 text-sm tracking-wide uppercase text-slate-400">Thời khóa biểu giảng dạy</h3>
+              <p className="text-[11px] text-slate-400 font-semibold mt-1">Lịch dạy chi tiết theo ngày dựa trên các lớp học đang hoạt động</p>
+            </div>
+            <ScheduleView activeClasses={activeClasses as any} role="TEACHER" />
+          </div>
+        )}
+
         {/* Tab Apply (Apply classes) */}
         {activeTab === 'apply' && (
           <div className="flex flex-col gap-6">
-            <h3 className="font-bold text-slate-800 text-sm tracking-wide uppercase text-slate-450">Lớp mới đang tuyển gia sư</h3>
+            <h3 className="font-bold text-slate-800 text-sm tracking-wide uppercase text-slate-400">Lớp mới đang tuyển gia sư</h3>
             {openClasses.length === 0 ? (
-              <div className="text-center py-16 text-slate-400 bg-white border border-slate-200/60 rounded-2xl shadow-sm">
+              <div className="text-center py-16 text-slate-400 glass-panel rounded-2xl">
                 Không có lớp mới đăng tuyển tại thời điểm này.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {openClasses.map((req) => (
-                  <div key={req.id} className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden hover:border-sky-305 hover:shadow-md transition-all duration-300">
+                  <div key={req.id} className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden">
                     <div className="flex justify-between items-start">
                       <span className="px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-100 text-[10px] font-bold text-sky-600">
                         {req.subject} ({req.grade})
@@ -401,7 +441,7 @@ export const TeacherDashboard: React.FC = () => {
 
         {/* Tab Profile */}
         {activeTab === 'profile' && (
-          <div className="bg-white border border-slate-200/80 p-6 md:p-8 rounded-3xl max-w-2xl shadow-md relative overflow-hidden">
+          <div className="glass-panel p-6 md:p-8 rounded-3xl max-w-2xl relative overflow-hidden">
             <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-6 flex items-center gap-2 pb-3 border-b border-slate-100">
               <User className="text-sky-500" />
               Cập nhật thông tin gia sư
@@ -471,6 +511,19 @@ export const TeacherDashboard: React.FC = () => {
             </form>
           </div>
         )}
+
+        {/* Tab Materials & Exams */}
+        {activeTab === 'materials' && (
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-extrabold text-slate-805 text-sm tracking-wide uppercase text-slate-400">Học liệu & Đề thi trắc nghiệm (Cấu hình Giáo viên)</h3>
+                <span className="text-[10px] text-slate-450 font-bold uppercase block mt-0.5">Tải đề PDF lên và tạo phiếu điền đáp án tự động</span>
+              </div>
+            </div>
+            <MaterialsView />
+          </div>
+        )}
       </main>
 
       {/* Proposal Notes Application Modal */}
@@ -498,7 +551,7 @@ export const TeacherDashboard: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-450 uppercase tracking-widest">Lời giới thiệu/Đề xuất</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lời giới thiệu/Đề xuất</label>
                 <textarea
                   required
                   rows={4}

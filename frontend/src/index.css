@@ -19,13 +19,22 @@
   scroll-behavior: smooth;
 }
 
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background-color: #f8fafc;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(2, 132, 199, 0.02) 0px, transparent 50%);
+    radial-gradient(at 10% 20%, rgba(14, 165, 233, 0.05) 0px, transparent 40%),
+    radial-gradient(at 90% 10%, rgba(99, 102, 241, 0.04) 0px, transparent 40%),
+    radial-gradient(at 50% 80%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
   background-attachment: fixed;
   overflow-x: hidden;
 }
@@ -37,13 +46,12 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 99px;
-  border: 1px solid #f8fafc;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -52,24 +60,36 @@ body {
 
 /* ERP Layout Panels & Cards */
 .glass-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.02), 
+    0 1px 3px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .glass-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.03), 
+    0 1px 1px rgba(0, 0, 0, 0.01),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .glass-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(14, 165, 233, 0.3);
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(14, 165, 233, 0.4);
   box-shadow: 
-    0 10px 20px -8px rgba(0, 0, 0, 0.05),
-    0 0 12px 1px rgba(14, 165, 233, 0.05);
+    0 20px 40px -15px rgba(14, 165, 233, 0.1),
+    0 0 20px 2px rgba(14, 165, 233, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* Gradient Text styles */
@@ -223,5 +243,147 @@ body {
   animation: float-fast 4s ease-in-out infinite;
 }
 
+/* ==========================================================================
+   Dark Mode System
+   ========================================================================== */
+.dark body {
+  background-color: #0b0f19;
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(14, 165, 233, 0.08) 0px, transparent 40%),
+    radial-gradient(at 90% 10%, rgba(99, 102, 241, 0.06) 0px, transparent 40%),
+    radial-gradient(at 50% 80%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+  color: #f1f5f9;
+}
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
 
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.2), 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.15), 
+    0 1px 1px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.dark .glass-card:hover {
+  transform: translateY(-4px);
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.3),
+    0 0 20px 2px rgba(14, 165, 233, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Dark Mode Global Text & Component Overrides */
+.dark, .dark body {
+  color: #cbd5e1;
+}
+
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark h4, 
+.dark h5, 
+.dark h6, 
+.dark strong,
+.dark .text-slate-900, 
+.dark .text-slate-800, 
+.dark .text-slate-700,
+.dark .text-slate-805,
+.dark .text-slate-800\/90 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-600, 
+.dark .text-slate-500,
+.dark .text-slate-550,
+.dark .text-slate-650 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400,
+.dark .text-slate-450 {
+  color: #64748b !important;
+}
+
+.dark .bg-white {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  color: #cbd5e1 !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: #0b0f19 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+.dark .border-slate-200, 
+.dark .border-slate-250,
+.dark .border-slate-200\/80, 
+.dark .border-slate-200\/60, 
+.dark .border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: rgba(15, 23, 42, 0.7) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark input::placeholder {
+  color: #475569 !important;
+}
+
+.dark .bg-sky-50 {
+  background-color: rgba(14, 165, 233, 0.1) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(14, 165, 233, 0.2) !important;
+}
+
+.dark .text-sky-600 {
+  color: #38bdf8 !important;
+}
+
+.dark aside {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+  border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark nav {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Floating icons opacity in dark mode */
+.dark .opacity-\[0\.12\] {
+  opacity: 0.06 !important; /* Slightly lower opacity in dark mode so it doesn't distract */
+  filter: invert(1) brightness(2);
+}

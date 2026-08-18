@@ -7,7 +7,8 @@ import {
   FileText,
   User,
   PlusCircle,
-  GraduationCap
+  GraduationCap,
+  Calendar
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -32,12 +33,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         return [
           { id: 'stats', label: 'Thống kê thu nhập', icon: <BarChart3 size={15} /> },
           { id: 'classes', label: 'Lớp học đang dạy', icon: <BookOpen size={15} /> },
+          { id: 'schedule', label: 'Thời khóa biểu dạy', icon: <Calendar size={15} /> },
+          { id: 'materials', label: 'Học liệu & Đề thi', icon: <FileText size={15} /> },
           { id: 'apply', label: 'Ứng tuyển lớp mới', icon: <PlusCircle size={15} /> },
           { id: 'profile', label: 'Hồ sơ cá nhân', icon: <User size={15} /> },
         ];
       case 'STUDENT':
         return [
           { id: 'classes', label: 'Lớp học đang học', icon: <BookOpen size={15} /> },
+          { id: 'schedule', label: 'Thời khóa biểu học', icon: <Calendar size={15} /> },
+          { id: 'materials', label: 'Học liệu & Đề thi', icon: <FileText size={15} /> },
           { id: 'post-request', label: 'Đăng tin tìm Gia sư', icon: <PlusCircle size={15} /> },
           { id: 'requests', label: 'Yêu cầu đã đăng', icon: <FileText size={15} /> },
         ];
@@ -62,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const getAvatarColor = (role: string) => {
     switch (role) {
       case 'ADMIN':
-        return 'from-rose-450 to-orange-450 text-white';
+        return 'from-rose-500 to-orange-500 text-white';
       case 'TEACHER':
         return 'from-sky-500 to-sky-600 text-white';
       default:
@@ -71,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   };
 
   return (
-    <aside className="w-full md:w-64 bg-white border-r border-slate-200/80 min-h-[calc(100vh-73px)] p-5 flex flex-col gap-5 shadow-sm relative z-10">
+    <aside className="w-full md:w-64 bg-white/70 backdrop-blur-md border-r border-slate-200/80 min-h-[calc(100vh-73px)] p-5 flex flex-col gap-5 shadow-sm relative z-10">
       {/* Profile Info block */}
       <div className="flex items-center gap-3 pb-5 border-b border-slate-100">
         <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${getAvatarColor(user.role)} flex items-center justify-center font-bold text-sm shadow-sm`}>
@@ -95,7 +100,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
               onClick={() => setActiveTab(link.id)}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all duration-150 relative overflow-hidden group cursor-pointer ${
                 isActive
-                  ? 'bg-sky-50 text-sky-650 border border-sky-100 shadow-sm shadow-sky-500/5'
+                  ? 'bg-sky-50 text-sky-600 border border-sky-100 shadow-sm shadow-sky-500/5'
                   : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
               }`}
             >

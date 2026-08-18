@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Patch, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Param, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ClassesService } from './classes.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -83,5 +84,33 @@ export class ClassesController {
     @Body('comment') comment: string,
   ) {
     return this.classesService.submitFeedback(req.user.id, tutorId, rating, comment);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('requests/:id')
+  updateRequest(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    return this.classesService.updateRequest(req.user.id, req.user.role, id, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('requests/:id')
+  deleteRequest(
+    @Request() req: any,
+    @Param('id') id: string,
+  ) {
+    return this.classesService.deleteRequest(req.user.id, req.user.role, id);
+  }
+
+  @Post('generate-test')
+  @UseInterceptors(FileInterceptor('file'))
+  generateTest(
+    @UploadedFile() file: any,
+    @Body('subject') subject: string,
+  ) {
+    return this.classesService.generateTestFromPdf(file.buffer, subject);
   }
 }

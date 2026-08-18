@@ -93,7 +93,7 @@ export class ChatController {
 
     if (apiKey) {
       try {
-        const systemInstruction = `Bạn là một trợ lý AI thông minh toàn năng (General AI Assistant), đồng thời tích hợp dữ liệu học vụ của Trung tâm Gia sư Huy Hoàng (Huy Hoàng Tutor Center).
+        const systemInstruction = `Bạn là một trợ lý AI thông minh toàn năng (General AI Assistant), đồng thời tích hợp dữ liệu học vụ của Trung tâm Gia sư Hoa Hướng Dương (Hoa Hướng Dương Tutor Center).
 Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng Việt thân thiện, lịch sự (bao gồm trả lời kiến thức chung, làm văn, giải bài tập, v.v.). Nếu người dùng hỏi về thông tin lịch học, lớp học, học phí hay gia sư của họ trong trung tâm, hãy sử dụng dữ liệu hệ thống dưới đây để trả lời chính xác.
 Dưới đây là thông tin tài khoản đang chat với bạn:
 ${context}`;
@@ -220,7 +220,7 @@ ${context}`;
         reply += `Bạn có thể xem thông tin gia sư khác tại trang chủ của trung tâm.`;
       }
     } else {
-      reply += `Tôi là Trợ lý Học vụ ảo của trung tâm gia sư Huy Hoàng. Bạn có thể hỏi tôi về lịch học hôm nay, thông tin học phí hoặc liên hệ gia sư!`;
+      reply += `Tôi là Trợ lý Học vụ ảo của trung tâm gia sư Hoa Hướng Dương. Bạn có thể hỏi tôi về lịch học hôm nay, thông tin học phí hoặc liên hệ gia sư!`;
     }
 
     return { reply };

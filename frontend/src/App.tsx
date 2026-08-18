@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { LandingPage } from './pages/LandingPage';
+import { AboutUs } from './pages/AboutUs';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { OtpVerify } from './pages/OtpVerify';
@@ -10,6 +11,7 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { StudentDashboard } from './pages/StudentDashboard';
+import { ClassRequestsList } from './pages/ClassRequestsList';
 import { ChatbotWidget } from './components/ChatbotWidget';
 import { Footer } from './components/Footer';
 
@@ -22,6 +24,7 @@ function App() {
           <div className="flex-1 flex flex-col">
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<AboutUs />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/verify-otp" element={<OtpVerify />} />
@@ -29,6 +32,7 @@ function App() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/classes" element={<ClassRequestsList />} />
             </Routes>
             <ChatbotWidget />
           </div>

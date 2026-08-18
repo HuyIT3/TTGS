@@ -68,7 +68,7 @@ export const Register: React.FC = () => {
       <div className="w-full max-w-md bg-white/90 backdrop-blur-md border border-slate-200/80 p-8 rounded-3xl shadow-2xl shadow-sky-950/5 flex flex-col gap-6 relative z-10 animate-fade-in-up">
         <div className="text-center flex flex-col gap-2">
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-gradient-primary">Đăng ký Tài khoản</h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium">Trở thành thành viên của Gia sư Huy Hoàng</p>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium">Trở thành thành viên của Gia sư Hoa Hướng Dương</p>
         </div>
 
         {error && (

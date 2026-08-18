@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Sidebar } from '../components/Sidebar';
-import { BookOpen, PlusCircle, FileText, Star, MapPin, Calendar, Clock, DollarSign, X, Check, Eye } from 'lucide-react';
+import { BookOpen, PlusCircle, FileText, Star, MapPin, Calendar, Clock, DollarSign, X, Check, Eye, Ruler, PenTool, Compass, GraduationCap, Award, Sparkles } from 'lucide-react';
+import { ScheduleView } from '../components/ScheduleView';
+import MaterialsView from '../components/MaterialsView';
 
 interface ActiveClass {
   id: string;
@@ -84,17 +86,35 @@ export const StudentDashboard: React.FC = () => {
       id: 'c-act-1',
       tutorId: 'tut-1',
       classRequest: {
-        title: 'Luyện thi cấp tốc Hóa học lớp 12',
-        subject: 'Hóa học',
+        title: 'Lớp Toán 12 - Ôn thi THPT Quốc Gia',
+        subject: 'Toán học',
         grade: 'Lớp 12',
-        hourlyRate: 180000,
-        sessionsPerWeek: 2,
-        schedule: 'Sáng thứ 7 và Chủ nhật (8:30 - 10:30)',
+        hourlyRate: 100000,
+        sessionsPerWeek: 3,
+        schedule: 'Thứ 2 (19:00 - 21:00), Thứ 7 (16:00 - 18:00), Chủ Nhật (14:00 - 16:00)',
+        location: 'Quận Tây Hồ, Hà Nội',
+      },
+      tutor: {
+        id: 'tut-1',
+        user: { fullName: 'Dư Hoàng Huy', phone: '0327169519' }
+      },
+      status: 'ASSIGNED'
+    },
+    {
+      id: 'c-act-2',
+      tutorId: 'tut-1',
+      classRequest: {
+        title: 'Lớp Vật lý 12 - Củng cố kiến thức trọng tâm',
+        subject: 'Vật lý',
+        grade: 'Lớp 12',
+        hourlyRate: 100000,
+        sessionsPerWeek: 3,
+        schedule: 'Thứ 4 (19:00 - 21:00), Thứ 6 (18:00 - 20:00), Thứ 7 (10:00 - 12:00)',
         location: 'Online qua Zoom',
       },
       tutor: {
         id: 'tut-1',
-        user: { fullName: 'Nguyễn Văn Hùng', phone: '0912345678' }
+        user: { fullName: 'Dư Hoàng Huy', phone: '0327169519' }
       },
       status: 'ASSIGNED'
     }
@@ -106,7 +126,7 @@ export const StudentDashboard: React.FC = () => {
       title: 'Tìm Gia sư Toán 12 ôn thi THPT Quốc Gia',
       subject: 'Toán học',
       grade: 'Lớp 12',
-      hourlyRate: 200000,
+      hourlyRate: 100000,
       sessionsPerWeek: 2,
       schedule: 'Tối thứ 3 và tối thứ 5 (19:30 - 21:30)',
       location: 'Quận Tây Hồ, Hà Nội',
@@ -114,13 +134,13 @@ export const StudentDashboard: React.FC = () => {
       applications: [
         {
           id: 'app-1',
-          notes: 'Chào em, anh là Nguyễn Văn Hùng. Anh tự tin có thể hỗ trợ em ôn thi đại học đạt điểm số mong muốn.',
+          notes: 'Chào em, anh là Dư Hoàng Huy. Anh tự tin có thể hỗ trợ em ôn thi đại học đạt điểm số mong muốn.',
           status: 'PENDING',
           tutor: {
             id: 'tut-1',
-            experience: '5 năm kinh nghiệm gia sư cấp 3',
-            hourlyRate: 200000,
-            user: { fullName: 'Nguyễn Văn Hùng', phone: '0912345678', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150' }
+            experience: '4 năm kinh nghiệm dạy và ôn thi thpt toán lý hóa cấp 2,3',
+            hourlyRate: 100000,
+            user: { fullName: 'Dư Hoàng Huy', phone: '0327169519', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150' }
           }
         }
       ]
@@ -256,7 +276,18 @@ export const StudentDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)] w-full relative bg-slate-50 text-slate-800">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)] w-full relative bg-slate-50 text-slate-800 overflow-hidden">
+      {/* Educational Floating Background Icons */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.12] select-none">
+        <BookOpen className="absolute text-slate-900 w-24 h-24 top-12 left-1/4 animate-float-slow" />
+        <Ruler className="absolute text-slate-900 w-20 h-20 bottom-16 left-1/3 animate-float-slower" />
+        <PenTool className="absolute text-slate-900 w-16 h-16 top-1/3 right-1/4 animate-float-fast" />
+        <Compass className="absolute text-slate-900 w-24 h-24 bottom-24 right-1/3 animate-float-slow" />
+        <GraduationCap className="absolute text-slate-900 w-32 h-32 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin-slow" />
+        <Award className="absolute text-slate-900 w-20 h-20 top-20 right-10 animate-float-slower" />
+        <Sparkles className="absolute text-slate-900 w-16 h-16 bottom-10 left-10 animate-pulse-subtle" />
+      </div>
+
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col gap-8 relative z-10 animate-fade-in-up">
@@ -264,7 +295,7 @@ export const StudentDashboard: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
             Học viên Dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-slate-550 mt-1">Quản lý lớp học của bạn, đăng tin tìm gia sư mới, theo dõi lịch và nhận xét</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Quản lý lớp học của bạn, đăng tin tìm gia sư mới, theo dõi lịch và nhận xét</p>
         </div>
 
         {/* Tab: Classes */}
@@ -272,13 +303,13 @@ export const StudentDashboard: React.FC = () => {
           <div className="flex flex-col gap-6">
             <h3 className="font-bold text-slate-805 text-sm tracking-wide uppercase text-slate-400">Lớp đang theo học</h3>
             {activeClasses.length === 0 ? (
-              <div className="text-center py-16 text-slate-400 bg-white border border-slate-200/60 rounded-2xl">
+              <div className="text-center py-16 text-slate-400 glass-panel rounded-2xl">
                 Bạn chưa tham gia lớp học nào hiện tại.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {activeClasses.map((item) => (
-                  <div key={item.id} className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:border-sky-300 hover:shadow-md">
+                  <div key={item.id} className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden">
                     <div className="flex justify-between items-start">
                       <span className="px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-100 text-[10px] font-bold text-sky-600">
                         {item.classRequest.subject} - {item.classRequest.grade}
@@ -315,9 +346,20 @@ export const StudentDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Tab: Schedule */}
+        {activeTab === 'schedule' && (
+          <div className="flex flex-col gap-6">
+            <div>
+              <h3 className="font-bold text-slate-850 text-sm tracking-wide uppercase text-slate-400">Thời khóa biểu học tập</h3>
+              <p className="text-[11px] text-slate-400 font-semibold mt-1">Lịch học chi tiết theo ngày dựa trên các lớp học đang hoạt động</p>
+            </div>
+            <ScheduleView activeClasses={activeClasses as any} role="STUDENT" />
+          </div>
+        )}
+
         {/* Tab: Post Request */}
         {activeTab === 'post-request' && (
-          <div className="bg-white border border-slate-200/80 p-6 md:p-8 rounded-3xl max-w-2xl shadow-sm relative overflow-hidden">
+          <div className="glass-panel p-6 md:p-8 rounded-3xl max-w-2xl relative overflow-hidden">
             <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-6 flex items-center gap-2 pb-3 border-b border-slate-100">
               <PlusCircle className="text-sky-500" />
               Đăng yêu cầu Tìm gia sư mới
@@ -440,13 +482,13 @@ export const StudentDashboard: React.FC = () => {
           <div className="flex flex-col gap-6">
             <h3 className="font-bold text-slate-805 text-sm tracking-wide uppercase text-slate-400">Yêu cầu gia sư đã đăng</h3>
             {studentRequests.length === 0 ? (
-              <div className="text-center py-16 text-slate-400 bg-white border border-slate-200/60 rounded-2xl">
+              <div className="text-center py-16 text-slate-400 glass-panel rounded-2xl">
                 Bạn chưa đăng tin tìm gia sư nào.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {studentRequests.map((req) => (
-                  <div key={req.id} className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden">
+                  <div key={req.id} className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden">
                     <div className="flex justify-between items-start gap-4">
                       <div className="flex flex-wrap gap-1.5">
                         <span className="px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-100 text-[10px] font-bold text-sky-600">
@@ -481,6 +523,19 @@ export const StudentDashboard: React.FC = () => {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Tab: Materials & Exams */}
+        {activeTab === 'materials' && (
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-extrabold text-slate-805 text-sm tracking-wide uppercase text-slate-400">Kho học liệu & Phòng luyện đề trực tuyến</h3>
+                <span className="text-[10px] text-slate-450 font-bold uppercase block mt-0.5">Luyện đề tự động chấm điểm</span>
+              </div>
+            </div>
+            <MaterialsView />
           </div>
         )}
       </main>
@@ -524,7 +579,7 @@ export const StudentDashboard: React.FC = () => {
                       <span className="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">Học phí: {app.tutor.hourlyRate.toLocaleString('vi-VN')} đ/h</span>
                     </div>
 
-                    <p className="text-xs text-slate-550 leading-relaxed italic bg-white p-4 rounded-xl border border-slate-100">
+                    <p className="text-xs text-slate-500 leading-relaxed italic bg-white p-4 rounded-xl border border-slate-100">
                       {"\""} + app.notes
                     </p>
 

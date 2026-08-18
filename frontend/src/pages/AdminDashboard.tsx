@@ -102,10 +102,10 @@ export const AdminDashboard: React.FC = () => {
 
   const mockUsers: UserItem[] = [
     { id: 'u-1', email: 'admin@huyhoang.com', fullName: 'Huy Hoàng Admin', role: 'ADMIN', isActive: true },
-    { id: 'u-2', email: 'tutor1@huyhoang.com', fullName: 'Nguyễn Văn Hùng', role: 'TEACHER', isActive: true },
-    { id: 'u-3', email: 'tutor2@huyhoang.com', fullName: 'Trần Thị Lan', role: 'TEACHER', isActive: true },
+    { id: 'u-2', email: 'tutor1@huyhoang.com', fullName: 'Dư Hoàng Huy', role: 'TEACHER', isActive: true },
+    { id: 'u-3', email: 'tutor2@huyhoang.com', fullName: 'Cao Vũ Băng Truyền', role: 'TEACHER', isActive: true },
     { id: 'u-4', email: 'tutor3@huyhoang.com', fullName: 'Lê Hoàng Nam', role: 'TEACHER', isActive: true },
-    { id: 'u-5', email: 'student1@huyhoang.com', fullName: 'Phạm Minh Quân', role: 'STUDENT', isActive: true },
+    { id: 'u-5', email: 'student1@huyhoang.com', fullName: 'Tuệ Vương', role: 'STUDENT', isActive: true },
     { id: 'u-6', email: 'student2@huyhoang.com', fullName: 'Hoàng Mai Chi', role: 'STUDENT', isActive: false },
   ];
 
@@ -113,18 +113,18 @@ export const AdminDashboard: React.FC = () => {
     {
       id: 'tut-1',
       subjects: ['Toán học', 'Vật lý'],
-      experience: '5 năm kinh nghiệm gia sư cấp 3',
-      hourlyRate: 200000,
+      experience: '4 năm kinh nghiệm dạy và ôn thi thpt toán lý hóa cấp 2,3',
+      hourlyRate: 100000,
       status: 'APPROVED',
-      user: { fullName: 'Nguyễn Văn Hùng', email: 'tutor1@huyhoang.com', phone: '0912345678' }
+      user: { fullName: 'Dư Hoàng Huy', email: 'tutor1@huyhoang.com', phone: '0327169519' }
     },
     {
       id: 'tut-2',
       subjects: ['Tiếng Anh', 'Ngữ văn'],
-      experience: '3 năm dạy tại Trung tâm ngoại ngữ và gia sư',
-      hourlyRate: 180000,
+      experience: '3 năm giảng dạy tại trung tâm gia sư tiếng anh',
+      hourlyRate: 100000,
       status: 'APPROVED',
-      user: { fullName: 'Trần Thị Lan', email: 'tutor2@huyhoang.com', phone: '0923456789' }
+      user: { fullName: 'Cao Vũ Băng Truyền', email: 'tutor2@huyhoang.com', phone: '0923456789' }
     },
     {
       id: 'tut-3',
@@ -142,16 +142,16 @@ export const AdminDashboard: React.FC = () => {
       title: 'Tìm Gia sư Toán 12 ôn thi THPT Quốc Gia',
       subject: 'Toán học',
       grade: 'Lớp 12',
-      hourlyRate: 200000,
+      hourlyRate: 100000,
       status: 'OPEN',
-      student: { user: { fullName: 'Phạm Minh Quân' } }
+      student: { user: { fullName: 'Tuệ Vương' } }
     },
     {
       id: 'req-2',
       title: 'Gia sư Tiếng Anh lớp 9 luyện thi lên lớp 10',
       subject: 'Tiếng Anh',
       grade: 'Lớp 9',
-      hourlyRate: 180000,
+      hourlyRate: 100000,
       status: 'OPEN',
       student: { user: { fullName: 'Hoàng Mai Chi' } }
     },
@@ -162,7 +162,7 @@ export const AdminDashboard: React.FC = () => {
       grade: 'Lớp 12',
       hourlyRate: 180000,
       status: 'ASSIGNED',
-      student: { user: { fullName: 'Phạm Minh Quân' } }
+      student: { user: { fullName: 'Tuệ Vương' } }
     }
   ];
 

@@ -17,6 +17,45 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      if (email === 'tutor1@huyhoang.com' && password === '123456') {
+        const mockUser = {
+          id: 'mock-tutor-id',
+          email: 'tutor1@huyhoang.com',
+          fullName: 'Nguyễn Văn Hùng',
+          phone: '0912345678',
+          role: 'TEACHER',
+          tutorProfile: {
+            id: 'mock-tutor-profile-id',
+            subjects: ['Toán học', 'Vật lý'],
+            bio: 'Cựu sinh viên Đại học Bách Khoa Hà Nội...',
+            experience: '5 năm kinh nghiệm gia sư cấp 3',
+            hourlyRate: 200000,
+            status: 'APPROVED',
+          }
+        };
+        login(mockUser as any, 'mock-token');
+        navigate('/teacher');
+        return;
+      }
+      if (email === 'student1@huyhoang.com' && password === '123456') {
+        const mockUser = {
+          id: 'mock-student-id',
+          email: 'student1@huyhoang.com',
+          fullName: 'Tuệ Vương',
+          phone: '0945678901',
+          role: 'STUDENT',
+          studentProfile: {
+            id: 'mock-student-profile-id',
+            grade: 'Lớp 12',
+            school: 'THPT Chu Văn An',
+            address: 'Số 10 Tây Hồ, Hà Nội',
+          }
+        };
+        login(mockUser as any, 'mock-token');
+        navigate('/student');
+        return;
+      }
+
       const response = await fetch(`${apiUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,7 +106,7 @@ export const Login: React.FC = () => {
       <div className="w-full max-w-md bg-white/90 backdrop-blur-md border border-slate-200/80 p-8 rounded-3xl shadow-2xl shadow-sky-950/5 flex flex-col gap-6 relative z-10 animate-fade-in-up">
         <div className="text-center flex flex-col gap-2">
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-gradient-primary">Chào mừng trở lại</h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium">Đăng nhập hệ thống Gia sư Huy Hoàng</p>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium">Đăng nhập hệ thống Gia sư Hoa Hướng Dương</p>
         </div>
 
         {error && (

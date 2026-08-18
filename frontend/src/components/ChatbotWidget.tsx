@@ -23,7 +23,7 @@ export const ChatbotWidget: React.FC = () => {
       const welcome: ChatMessage = {
         sender: 'bot',
         text: user 
-          ? `Xin chào ${user.fullName}! Tôi là Trợ lý Học vụ AI của Huy Hoàng Tutor Center. Tôi có thể giúp gì cho bạn hôm nay?`
+          ? `Xin chào ${user.fullName}! Tôi là Trợ lý Học vụ AI của Hoa Hướng Dương Tutor Center. Tôi có thể giúp gì cho bạn hôm nay?`
           : 'Xin chào! Tôi là Trợ lý Học vụ ảo của trung tâm. Vui lòng đăng nhập để tra cứu lịch học, thông tin học phí cá nhân và trò chuyện trực tiếp cùng tôi.',
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
       };

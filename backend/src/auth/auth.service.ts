@@ -33,6 +33,7 @@ export class AuthService {
           fullName: dto.fullName,
           phone: dto.phone,
           role: dto.role,
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
           isVerified: false, // Bắt buộc xác thực OTP
         },
       });
