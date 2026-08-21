@@ -79,10 +79,67 @@ export interface VocabWord {
   exampleMeaning: string;
 }
 
+const heroSlides = [
+  {
+    id: 0,
+    image: heroImg,
+    subtitle: 'Hệ thống Gia sư Hoa Hướng Dương',
+    titlePart1: 'Nâng Tầm Tri Thức',
+    titlePart2: 'Bứt Phá Điểm Số',
+    description: 'Kết nối gia sư chất lượng cao, tận tâm với học sinh cấp 1, 2, 3 và ôn thi đại học. Giải pháp tối ưu nâng cao học lực, điểm số thi cử và định hình tương lai.',
+    statsTitle: 'Thành Tựu Đạt Được',
+    stats: [
+      { value: '100+', label: 'Gia sư chất lượng' },
+      { value: '350+', label: 'Lớp học thành công' },
+      { value: '98%', label: 'Phản hồi 5 sao' },
+      { value: '95%', label: 'Học sinh tiến bộ' }
+    ]
+  },
+  {
+    id: 1,
+    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600',
+    subtitle: 'Bảng Vàng Danh Dự - Hoa Hướng Dương',
+    titlePart1: 'Vinh Danh Thủ Khoa',
+    titlePart2: 'Đỗ Đại Học Top Đầu',
+    description: 'Chúc mừng các học viên xuất sắc đã đạt thành tích vượt bậc trong kỳ thi tốt nghiệp THPT Quốc Gia và Đánh giá năng lực 2025 - 2026.',
+    statsTitle: 'Bảng Vàng Thành Tích',
+    stats: [
+      { value: '29.2đ', label: 'Thủ khoa Đỗ Minh Hải' },
+      { value: '28.5đ', label: 'Á khoa Nguyễn Mai Chi' },
+      { value: '120+', label: 'Học viên đạt điểm 9+' },
+      { value: '100%', label: 'Đỗ Nguyện vọng 1' }
+    ]
+  },
+  {
+    id: 2,
+    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1600',
+    subtitle: 'Phương Pháp Độc Quyền',
+    titlePart1: 'Cá Nhân Hóa Lộ Trình',
+    titlePart2: '1 Kèm 1 Linh Hoạt',
+    description: 'Mỗi học sinh có một giáo trình riêng biệt bám sát năng lực học và mục tiêu điểm số. Học thử 1 buổi miễn phí, đổi gia sư linh hoạt.',
+    statsTitle: 'Cam Kết Đào Tạo',
+    stats: [
+      { value: '1 kèm 1', label: 'Tương tác trực tiếp' },
+      { value: 'SGK mới', label: 'Cập nhật liên tục' },
+      { value: 'Học thử', label: '1 buổi miễn phí' },
+      { value: 'Hỗ trợ 24/7', label: 'Giải đáp bài tập' }
+    ]
+  }
+];
+
 export const LandingPage: React.FC = () => {
   const { apiUrl, user } = useAuth();
   const navigate = useNavigate();
   const [tutors, setTutors] = useState<Tutor[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(slideInterval);
+  }, []);
+
   const [classRequests, setClassRequests] = useState<ClassRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('All');
@@ -1635,32 +1692,37 @@ export const LandingPage: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Immersive Full-Bleed Hero Section */}
+          {/* Immersive Full-Bleed Hero Section with cinematic Carousel */}
           <header className="-mx-6 lg:-mx-12 -mt-10 mb-10 relative min-h-[480px] md:min-h-[580px] overflow-hidden flex items-center bg-slate-950">
-            {/* Background Image with Ken Burns animation */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center opacity-70 transition-transform duration-[20s] hover:scale-105"
-              style={{ backgroundImage: `url(${heroImg})` }}
-            />
+            {/* Background Images Layer (Cross-fade effect) */}
+            {heroSlides.map((slide, index) => (
+              <div
+                key={slide.id}
+                className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${
+                  index === currentSlide ? 'opacity-65 scale-105' : 'opacity-0 scale-100'
+                }`}
+                style={{ backgroundImage: `url(${slide.image})` }}
+              />
+            ))}
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
             
-            {/* Content Container */}
-            <div className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-12 py-16 flex flex-col lg:flex-row items-center justify-between gap-12 text-white">
+            {/* Content Container (Key changes trigger entry animations) */}
+            <div key={currentSlide} className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-12 py-16 flex flex-col lg:flex-row items-center justify-between gap-12 text-white animate-fade-in-up">
               {/* Text Column */}
-              <div className="flex flex-col gap-6 max-w-2xl animate-fade-in-up">
+              <div className="flex flex-col gap-6 max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 max-w-fit uppercase tracking-wider shadow-sm backdrop-blur-md">
-                  <span>Hệ thống Gia sư Hoa Hướng Dương</span>
+                  <span>{heroSlides[currentSlide].subtitle}</span>
                 </div>
                 <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.15] drop-shadow-md">
-                  Nâng Tầm Tri Thức
+                  {heroSlides[currentSlide].titlePart1}
                   <br />
-                  <span className="text-amber-400">Bứt Phá Điểm Số</span>
+                  <span className="text-amber-400">{heroSlides[currentSlide].titlePart2}</span>
                 </h1>
                 <p className="text-slate-300 text-xs sm:text-sm max-w-lg leading-relaxed font-medium">
-                  Kết nối gia sư chất lượng cao, tận tâm với học sinh cấp 1, 2, 3 và ôn thi đại học. Giải pháp tối ưu nâng cao học lực, điểm số thi cử và định hình tương lai.
+                  {heroSlides[currentSlide].description}
                 </p>
-
-                {/* Immersive Search Bar */}
+                
+                {/* Immersive Search Bar (Keep active for first slide or all) */}
                 <div className="mt-2 flex w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 p-1.5 rounded-2xl items-center shadow-lg focus-within:ring-2 focus-within:ring-amber-400 focus-within:border-transparent transition-all">
                   <div className="pl-3.5 text-slate-300">
                     <Search size={16} />
@@ -1676,27 +1738,35 @@ export const LandingPage: React.FC = () => {
               </div>
               
               {/* Floating Achievements counter card */}
-              <div className="hidden lg:flex flex-col gap-5 bg-white/10 backdrop-blur-md border border-white/25 p-7 rounded-3xl w-80 shadow-2xl animate-fade-in-up delay-200">
-                <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest border-b border-white/10 pb-2 mb-1">Thành Tựu Đạt Được</h4>
+              <div className="hidden lg:flex flex-col gap-5 bg-white/10 backdrop-blur-md border border-white/25 p-7 rounded-3xl w-80 shadow-2xl">
+                <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest border-b border-white/10 pb-2 mb-1">
+                  {heroSlides[currentSlide].statsTitle}
+                </h4>
                 <div className="grid grid-cols-2 gap-5">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-black text-white leading-none">100+</span>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Gia sư chất lượng</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-black text-white leading-none">350+</span>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Lớp học thành công</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-black text-white leading-none">98%</span>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Phản hồi 5 sao</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-black text-white leading-none">95%</span>
-                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Học sinh tiến bộ</span>
-                  </div>
+                  {heroSlides[currentSlide].stats.map((stat, sIdx) => (
+                    <div key={sIdx} className="flex flex-col">
+                      <span className="text-3xl font-black text-white leading-none">{stat.value}</span>
+                      <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">
+                        {stat.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
+
+            {/* Slide Pill Indicators */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2.5">
+              {heroSlides.map((slide) => (
+                <button
+                  key={slide.id}
+                  onClick={() => setCurrentSlide(slide.id)}
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                    slide.id === currentSlide ? 'w-8 bg-amber-400' : 'w-2 bg-white/40 hover:bg-white/60'
+                  }`}
+                  title={`Xem slide ${slide.id + 1}`}
+                />
+              ))}
             </div>
           </header>
 
