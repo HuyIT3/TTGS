@@ -1,328 +1,193 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { MapPin, Phone, Mail, MessageCircle, GraduationCap, ArrowUpRight } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+
+  const quickLinks = [
+    { to: '/', label: 'Trang chủ' },
+    { to: '/about', label: 'Giới thiệu' },
+    { to: '/classes', label: 'Lớp học cần Gia sư' },
+    { to: '/login', label: 'Đăng nhập' },
+    { to: '/register', label: 'Đăng ký thành viên' },
+  ];
+
+  const contactItems = [
+    {
+      icon: <MapPin size={14} />,
+      label: 'Phường Linh Xuân, TP Thủ Đức, TP HCM',
+      href: null,
+    },
+    {
+      icon: <Phone size={14} />,
+      label: '0327 169 519',
+      href: 'tel:0327169519',
+    },
+    {
+      icon: <Mail size={14} />,
+      label: 'huykenkva123@gmail.com',
+      href: 'mailto:huykenkva123@gmail.com',
+    },
+    {
+      icon: <MessageCircle size={14} />,
+      label: 'Tư vấn Gia sư (Zalo)',
+      href: 'https://zalo.me/g/lrlyavgtoim0fj0v0eck',
+    },
+  ];
+
+  const socials = [
+    { label: 'Z', href: 'https://zalo.me/g/lrlyavgtoim0fj0v0eck', title: 'Zalo', color: 'hover:bg-blue-500/20 hover:border-blue-500/40 hover:text-blue-400' },
+    { label: 'f', href: 'https://www.facebook.com/huy.kenkva.7', title: 'Facebook', color: 'hover:bg-indigo-500/20 hover:border-indigo-500/40 hover:text-indigo-400' },
+    { label: '▶', href: 'https://www.youtube.com/@hanhy0101', title: 'Youtube', color: 'hover:bg-rose-500/20 hover:border-rose-500/40 hover:text-rose-400' },
+  ];
+
   return (
-    <div className="footer-wrap">
-      <style>{`
-        .footer-wrap {
-          --sky-1: #eaf4ff;
-          --sky-2: #d7ebff;
-          --blue-deep: #123a6b;
-          --blue-mid: #1f66c9;
-          --blue-line: #bcdcff;
-          --sunflower: #f6a91b;
-          --sunflower-deep: #e0870b;
-          --ink: #12294a;
-          --ink-soft: #4b6485;
-          position: relative;
-          width: 100%;
-          overflow: hidden;
-          background: #f3f8ff;
-        }
+    <footer className="relative overflow-hidden bg-[#060a12] border-t border-white/[0.05]">
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500/[0.04] rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-violet-500/[0.03] rounded-full blur-3xl" />
+        {/* Grid */}
+        <div className="absolute inset-0 bg-line-grid opacity-30" />
+      </div>
 
+      {/* Gradient divider top */}
+      <div className="relative h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
 
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+        {/* Main grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
 
-        footer {
-          position: relative;
-          background:
-            radial-gradient(120% 160% at 12% -20%, #ffffff 0%, transparent 45%),
-            radial-gradient(90% 140% at 100% 0%, #fff6df 0%, transparent 40%),
-            linear-gradient(160deg, var(--sky-1) 0%, var(--sky-2) 55%, #cfe6ff 100%);
-          padding: 76px 6vw 28px;
-          color: var(--ink);
-        }
-
-        .sun-petal {
-          position: absolute;
-          z-index: 0;
-          opacity: .35;
-          pointer-events: none;
-        }
-
-        .footer-grid {
-          position: relative;
-          z-index: 1;
-          display: grid;
-          grid-template-columns: 1.5fr 1fr 1fr;
-          gap: 48px;
-          max-width: 1180px;
-          margin: 0 auto;
-        }
-
-        .brand {
-          max-width: 380px;
-        }
-        .brand-row {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 18px;
-        }
-        .logo-badge {
-          width: 46px;
-          height: 46px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #ffe08a, var(--sunflower));
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 6px 14px rgba(224,135,11,.35);
-          font-size: 22px;
-        }
-        .brand-name {
-          font-family: 'Baloo 2', 'Inter', sans-serif;
-          font-weight: 700;
-          font-size: 22px;
-          color: var(--blue-deep);
-          letter-spacing: .2px;
-        }
-        .brand-name span {
-          color: var(--sunflower-deep);
-        }
-
-        .brand p {
-          font-size: 14.5px;
-          line-height: 1.7;
-          color: var(--ink-soft);
-          margin: 0 0 22px;
-        }
-
-        .footer-quote {
-          margin: 0;
-          padding: 14px 18px;
-          background: rgba(255,255,255,.65);
-          border-left: 3px solid var(--sunflower);
-          border-radius: 0 12px 12px 0;
-          font-style: italic;
-          font-size: 13.5px;
-          line-height: 1.65;
-          color: var(--blue-deep);
-          backdrop-filter: blur(2px);
-        }
-
-        h4.col-title {
-          font-family: 'Baloo 2', 'Inter', sans-serif;
-          font-size: 14px;
-          letter-spacing: 1.2px;
-          font-weight: 650;
-          color: var(--blue-mid);
-          text-transform: uppercase;
-          margin: 0 0 20px;
-          position: relative;
-          padding-bottom: 10px;
-        }
-        h4.col-title::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          width: 28px;
-          height: 3px;
-          border-radius: 3px;
-          background: linear-gradient(90deg, var(--sunflower), var(--blue-mid));
-        }
-
-        .footer-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 13px;
-        }
-        .footer-list.links a {
-          color: var(--ink);
-          text-decoration: none;
-          font-size: 14.5px;
-          font-weight: 500;
-          position: relative;
-          transition: color .2s ease, padding-left .2s ease;
-        }
-        .footer-list.links a::before {
-          content: '›';
-          position: absolute;
-          left: -16px;
-          opacity: 0;
-          color: var(--sunflower-deep);
-          transition: opacity .2s ease, left .2s ease;
-        }
-        .footer-list.links a:hover {
-          color: var(--blue-mid);
-          padding-left: 16px;
-        }
-        .footer-list.links a:hover::before {
-          opacity: 1;
-          left: 0;
-        }
-
-        .contact-item {
-          display: flex;
-          gap: 12px;
-          align-items: flex-start;
-          font-size: 14px;
-          color: var(--ink);
-        }
-        .icon-chip {
-          flex: none;
-          width: 32px;
-          height: 32px;
-          border-radius: 10px;
-          background: #fff;
-          box-shadow: 0 3px 8px rgba(31,102,201,.12);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .contact-item a {
-          color: var(--blue-mid);
-          text-decoration: none;
-          font-weight: 600;
-        }
-        .contact-item a:hover {
-          text-decoration: underline;
-        }
-
-        .footer-divider {
-          max-width: 1180px;
-          margin: 52px auto 22px;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, var(--blue-line), transparent);
-        }
-
-        .bottom-row {
-          position: relative;
-          z-index: 1;
-          max-width: 1180px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 14px;
-        }
-        .copyright {
-          font-size: 13px;
-          color: var(--ink-soft);
-        }
-
-        .socials {
-          display: flex;
-          gap: 10px;
-        }
-        .socials a {
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          background: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 10px rgba(31,102,201,.15);
-          color: var(--blue-mid);
-          text-decoration: none;
-          font-weight: bold;
-          font-size: 14px;
-          transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
-        }
-        .socials a:hover {
-          transform: translateY(-3px);
-          background: var(--blue-mid);
-          color: #fff;
-          box-shadow: 0 8px 16px rgba(31,102,201,.3);
-        }
-
-        @media (max-width: 820px) {
-          .footer-grid {
-            grid-template-columns: 1fr;
-            gap: 36px;
-          }
-          footer {
-            padding: 64px 6vw 24px;
-          }
-          .bottom-row {
-            justify-content: center;
-            text-align: center;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-
-
-      <footer>
-        <svg className="sun-petal" width="220" height="220" style={{ top: '-60px', right: '6%' }} viewBox="0 0 100 100">
-          <g fill="#f6a91b">
-            <ellipse cx="50" cy="18" rx="9" ry="18" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(45 50 50)" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(90 50 50)" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(135 50 50)" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(180 50 50)" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(225 50 50)" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(270 50 50)" />
-            <ellipse cx="50" cy="18" rx="9" ry="18" transform="rotate(315 50 50)" />
-          </g>
-          <circle cx="50" cy="50" r="12" fill="#e0870b" />
-        </svg>
-
-        <div className="footer-grid">
-          {/* Brand */}
-          <div className="brand">
-            <div className="brand-row">
-              <div className="logo-badge">🌻</div>
-              <div className="brand-name">Gia sư <span>Hoa Hướng Dương</span></div>
+          {/* Brand column */}
+          <div className="md:col-span-1 flex flex-col gap-5">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20 text-xl">
+                🌻
+              </div>
+              <div>
+                <p className="font-bold text-white text-base leading-none">Gia sư</p>
+                <p className="font-bold text-amber-400 text-base leading-none">Hoa Hướng Dương</p>
+              </div>
             </div>
-            <p>Hệ thống kết nối Gia sư và Học sinh hàng đầu, mang lại giải pháp giáo dục cá nhân hóa chất lượng cao, giúp học sinh vững bước chinh phục mọi kỳ thi.</p>
-            <div className="footer-quote">
-              "Đầu tư vào tri thức luôn mang lại lợi ích tốt nhất cho tương lai. Mỗi bước đi trong giáo dục hôm nay là nền móng vững chắc cho ngày mai."
+
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Hệ thống kết nối Gia sư và Học sinh hàng đầu, mang lại giải pháp giáo dục cá nhân hóa chất lượng cao, giúp học sinh vững bước chinh phục mọi kỳ thi.
+            </p>
+
+            {/* Quote */}
+            <div className="relative pl-4 py-3 border-l-2 border-amber-500/50">
+              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 to-orange-500 rounded-full" />
+              <p className="text-slate-400 text-xs italic leading-relaxed">
+                "Đầu tư vào tri thức luôn mang lại lợi ích tốt nhất cho tương lai."
+              </p>
+            </div>
+
+            {/* Stats row */}
+            <div className="flex gap-4 pt-1">
+              {[
+                { val: '100+', label: 'Gia sư' },
+                { val: '350+', label: 'Lớp học' },
+                { val: '98%', label: 'Hài lòng' },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <p className="text-sm font-bold text-gradient-primary">{stat.val}</p>
+                  <p className="text-[10px] text-slate-500">{stat.label}</p>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Quick links */}
           <div>
-            <h4 className="col-title">Liên kết nhanh</h4>
-            <ul className="footer-list links">
-              <li><Link to="/">Trang chủ</Link></li>
-              <li><Link to="/login">Đăng nhập</Link></li>
-              <li><Link to="/register">Đăng ký thành viên</Link></li>
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-[0.15em] mb-5 flex items-center gap-2">
+              <span className="w-4 h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" />
+              Liên kết nhanh
+            </h4>
+            <ul className="flex flex-col gap-2">
+              {quickLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="group flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-all duration-200"
+                  >
+                    <span className="w-1 h-1 bg-indigo-500/50 rounded-full group-hover:bg-indigo-400 transition-colors" />
+                    <span className="group-hover:translate-x-1 transition-transform duration-200">{link.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
+
+            {/* CTA */}
+            <div className="mt-6">
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl btn-gradient text-white text-xs font-semibold shadow-lg shadow-indigo-500/20"
+              >
+                <GraduationCap size={14} />
+                Bắt đầu học ngay
+                <ArrowUpRight size={13} className="opacity-70" />
+              </Link>
+            </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="col-title">Liên hệ</h4>
-            <ul className="footer-list">
-              <li className="contact-item">
-                <span className="icon-chip">📍</span>
-                <span>Phường Linh Xuân, TP Thủ Đức, TP HCM</span>
-              </li>
-              <li className="contact-item">
-                <span className="icon-chip">📞</span>
-                <a href="tel:0327169519">0327 169 519</a>
-              </li>
-              <li className="contact-item">
-                <span className="icon-chip">✉️</span>
-                <a href="mailto:huykenkva123@gmail.com">huykenkva123@gmail.com</a>
-              </li>
-              <li className="contact-item">
-                <span className="icon-chip">💬</span>
-                <a href="https://zalo.me/g/lrlyavgtoim0fj0v0eck" target="_blank" rel="noopener noreferrer">Tư vấn Gia sư (Zalo)</a>
-              </li>
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-[0.15em] mb-5 flex items-center gap-2">
+              <span className="w-4 h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" />
+              Liên hệ
+            </h4>
+            <ul className="flex flex-col gap-3.5">
+              {contactItems.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-indigo-400 shrink-0 mt-0.5">
+                    {item.icon}
+                  </div>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith('http') ? '_blank' : undefined}
+                      rel="noopener noreferrer"
+                      className="text-sm text-slate-400 hover:text-white transition-colors leading-snug"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-slate-400 leading-snug">{item.label}</span>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="footer-divider"></div>
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent mb-8" />
 
-        <div className="bottom-row">
-          <div className="copyright">© 2026 Gia sư Hoa Hướng Dương. Tất cả các quyền được bảo lưu.</div>
-          <div className="socials">
-            <a href="https://zalo.me/g/lrlyavgtoim0fj0v0eck" target="_blank" rel="noopener noreferrer" aria-label="Zalo">Z</a>
-            <a href="https://www.facebook.com/huy.kenkva.7" target="_blank" rel="noopener noreferrer" aria-label="Facebook">f</a>
-            <a href="https://www.youtube.com/@hanhy0101" target="_blank" rel="noopener noreferrer" aria-label="Youtube">▶</a>
+        {/* Bottom row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-slate-500">
+            © {currentYear} Gia sư Hoa Hướng Dương. Tất cả các quyền được bảo lưu.
+          </p>
+
+          {/* Social links */}
+          <div className="flex items-center gap-2">
+            {socials.map((social) => (
+              <a
+                key={social.title}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.title}
+                className={`w-9 h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-slate-400 font-bold text-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${social.color}`}
+              >
+                {social.label}
+              </a>
+            ))}
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   );
 };

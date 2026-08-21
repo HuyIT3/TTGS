@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, CheckCircle, AlertCircle, BookOpen, Ruler, PenTool, Compass, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, ShieldCheck, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export const OtpVerify: React.FC = () => {
   const { apiUrl } = useAuth();
@@ -18,18 +18,18 @@ export const OtpVerify: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    // Lấy thông tin từ state khi navigate từ trang register/login sang
+    setMounted(true);
     if (location.state) {
       const state = location.state as any;
       if (state.email) setEmail(state.email);
       if (state.type) setType(state.type);
       if (state.message) setMessage(state.message);
     }
-    // Kích hoạt countdown 60s
     setCountdown(60);
   }, [location]);
 
@@ -41,7 +41,6 @@ export const OtpVerify: React.FC = () => {
   }, [countdown]);
 
   const handleChange = (index: number, value: string) => {
-    // Chỉ nhận giá trị số
     const cleanValue = value.replace(/\D/g, '');
     if (!cleanValue) {
       const newOtpValues = [...otpValues];
@@ -56,7 +55,6 @@ export const OtpVerify: React.FC = () => {
     setOtpValues(newOtpValues);
     setCode(newOtpValues.join(''));
 
-    // Tự động nhảy sang ô tiếp theo
     if (index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -110,12 +108,7 @@ export const OtpVerify: React.FC = () => {
       }
 
       setSuccess(data.message || 'Xác thực thành công!');
-      
-      // Chờ 2 giây rồi chuyển về trang đăng nhập
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -124,11 +117,7 @@ export const OtpVerify: React.FC = () => {
   };
 
   const handleResend = async () => {
-    if (!email) {
-      setError('Vui lòng cung cấp email để gửi lại mã.');
-      return;
-    }
-
+    if (!email) { setError('Vui lòng cung cấp email để gửi lại mã.'); return; }
     setError(null);
     setSuccess(null);
     setResendLoading(true);
@@ -141,14 +130,11 @@ export const OtpVerify: React.FC = () => {
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Gửi lại OTP thất bại.');
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Gửi lại OTP thất bại.');
-      }
-
-      setSuccess(data.message || 'Mã OTP mới đã được gửi vào email của bạn.');
-      setCountdown(60); // Khởi động lại đếm ngược 60s
-      setOtpValues(Array(6).fill('')); // Reset ô nhập liệu
+      setSuccess(data.message || 'Mã OTP mới đã được gửi vào email.');
+      setCountdown(60);
+      setOtpValues(Array(6).fill(''));
       setCode('');
     } catch (err: any) {
       setError(err.message);
@@ -157,109 +143,186 @@ export const OtpVerify: React.FC = () => {
     }
   };
 
+  // Countdown circle
+  const circumference = 2 * Math.PI * 20;
+  const strokeDashoffset = circumference - (countdown / 60) * circumference;
+
   return (
-    <div className="w-full min-h-[calc(100vh-73px)] flex items-center justify-center p-6 relative overflow-hidden bg-slate-50 bg-notebook-grid text-slate-850">
-      {/* Educational Floating Icons */}
-      <BookOpen className="absolute text-sky-400/20 w-16 h-16 top-12 left-10 sm:left-24 animate-float-slow -z-10" />
-      <Ruler className="absolute text-indigo-400/20 w-14 h-14 bottom-16 left-6 sm:left-32 animate-float-slower -z-10" />
-      <PenTool className="absolute text-sky-500/20 w-12 h-12 top-20 right-8 sm:right-32 animate-float-fast -z-10" />
-      <Compass className="absolute text-amber-500/15 w-16 h-16 bottom-24 right-10 sm:right-24 animate-float-slow -z-10" />
-      <GraduationCap className="absolute text-indigo-500/10 w-24 h-24 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin-slow -z-20" />
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-6 bg-[#080c14] relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-dot-grid opacity-30 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-600/[0.05] blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-violet-600/[0.04] blur-3xl pointer-events-none" />
 
-      {/* Background Glows */}
-      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl -z-10 animate-pulse-subtle"></div>
-      <div className="absolute bottom-1/4 right-1/3 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl -z-10 animate-pulse-subtle"></div>
+      <div className={`w-full max-w-md relative z-10 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
 
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-md border border-slate-200/80 p-8 rounded-3xl shadow-2xl shadow-sky-950/5 flex flex-col gap-6 relative z-10 animate-fade-in-up">
-        <div className="text-center flex flex-col gap-2">
-          <div className="mx-auto bg-sky-50 text-sky-500 w-12 h-12 rounded-full flex items-center justify-center border border-sky-100 shadow-sm animate-bounce">
-            <ShieldCheck size={24} />
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-gradient-primary">Xác thực mã OTP</h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium">Nhập mã xác minh được gửi tới email của bạn</p>
-        </div>
+        {/* Card */}
+        <div className="glass-panel rounded-3xl p-8 border border-white/[0.07] shadow-2xl shadow-black/40">
 
-        {message && !error && !success && (
-          <div className="p-3.5 bg-blue-50 border border-blue-100 text-blue-700 text-xs rounded-xl font-medium">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-xl flex items-center gap-2 font-semibold animate-shake">
-            <AlertCircle size={16} className="text-rose-500 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {success && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl flex items-center gap-2 font-semibold">
-            <CheckCircle size={16} className="text-emerald-500 shrink-0" />
-            <span>{success}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Địa chỉ Email</label>
-            <div className="flex items-center input-premium rounded-xl px-3.5 py-2.5 text-slate-800 border border-slate-200 bg-slate-50/50 shadow-sm">
-              <Mail size={16} className="text-slate-400 mr-2.5" />
-              <input
-                type="email"
-                required
-                placeholder="email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-0 outline-none text-xs sm:text-sm text-slate-700 focus:ring-0"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Mã OTP (6 chữ số)</label>
-            <div className="flex justify-between gap-2.5 mt-1.5">
-              {otpValues.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => { inputRefs.current[index] = el; }}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={handlePaste}
-                  className="w-12 h-12 text-center text-xl font-extrabold rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all text-slate-800 outline-none shadow-sm"
-                />
-              ))}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || code.length !== 6}
-            className="w-full mt-2 py-3 rounded-xl font-bold text-xs sm:text-sm text-white btn-gradient flex items-center justify-center gap-2 disabled:opacity-50 transition-all cursor-pointer shadow-md active:scale-95"
+          {/* Back link */}
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mb-6 group"
           >
-            {loading ? 'Đang xác thực...' : 'Xác nhận OTP'}
-          </button>
-        </form>
-
-        <div className="flex justify-between items-center text-xs border-t border-slate-100 pt-4 mt-2">
-          <button
-            onClick={handleResend}
-            disabled={resendLoading || countdown > 0}
-            className="text-sky-600 hover:text-sky-700 font-bold transition-colors disabled:opacity-50 cursor-pointer"
-          >
-            {resendLoading 
-              ? 'Đang gửi lại...' 
-              : countdown > 0 
-                ? `Gửi lại mã (${countdown}s)` 
-                : 'Gửi lại mã OTP'
-            }
-          </button>
-          
-          <Link to="/login" className="text-slate-500 hover:text-slate-700 font-semibold transition-colors">
-            Quay lại Đăng nhập
+            <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+            Quay lại đăng nhập
           </Link>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="relative mx-auto w-16 h-16 mb-5">
+              {/* Circular countdown ring */}
+              {countdown > 0 && (
+                <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(99,102,241,0.15)" strokeWidth="3" />
+                  <circle
+                    cx="24" cy="24" r="20"
+                    fill="none"
+                    stroke="url(#countdown-gradient)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    style={{ transition: 'stroke-dashoffset 1s linear' }}
+                  />
+                  <defs>
+                    <linearGradient id="countdown-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#8b5cf6" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              )}
+              <div className={`absolute inset-1.5 rounded-full flex items-center justify-center ${
+                success ? 'bg-emerald-500/15 border border-emerald-500/30' : 'bg-indigo-500/10 border border-indigo-500/20'
+              }`}>
+                {success
+                  ? <CheckCircle size={24} className="text-emerald-400" />
+                  : <ShieldCheck size={24} className="text-indigo-400" />
+                }
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-extrabold text-white mb-1.5">Xác thực OTP</h2>
+            <p className="text-slate-400 text-sm">
+              Nhập mã 6 chữ số được gửi tới<br />
+              <span className="text-indigo-300 font-semibold">{email || 'email của bạn'}</span>
+            </p>
+          </div>
+
+          {/* Messages */}
+          {message && !error && !success && (
+            <div className="mb-5 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-start gap-3">
+              <Mail size={15} className="text-indigo-400 shrink-0 mt-0.5" />
+              <p className="text-indigo-300 text-sm">{message}</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 animate-shake">
+              <AlertCircle size={15} className="text-rose-400 shrink-0" />
+              <span className="text-rose-300 text-sm">{error}</span>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 animate-scale-in">
+              <CheckCircle size={15} className="text-emerald-400 shrink-0" />
+              <span className="text-emerald-300 text-sm">{success}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            {/* Email field */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email</label>
+              <div className="flex items-center input-premium rounded-xl px-4 py-3 gap-3 border border-white/[0.08] focus-within:border-indigo-500/50 transition-all">
+                <Mail size={15} className="text-slate-500 shrink-0" />
+                <input
+                  type="email"
+                  required
+                  placeholder="email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-transparent border-0 outline-none text-sm placeholder-slate-600 text-white focus:ring-0"
+                />
+              </div>
+            </div>
+
+            {/* OTP Boxes */}
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider text-center">Mã OTP (6 chữ số)</label>
+              <div className="flex justify-between gap-2">
+                {otpValues.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => { inputRefs.current[index] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
+                    className={`otp-input w-12 h-14 text-center text-xl rounded-2xl outline-none transition-all duration-200 ${
+                      digit ? 'filled animate-bounce-in' : ''
+                    }`}
+                  />
+                ))}
+              </div>
+              {/* Progress indicator */}
+              <div className="flex gap-1 justify-center">
+                {otpValues.map((digit, i) => (
+                  <div
+                    key={i}
+                    className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
+                      digit ? 'bg-gradient-to-r from-indigo-500 to-violet-500' : 'bg-white/[0.08]'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading || code.length !== 6}
+              className="w-full py-3.5 rounded-xl font-bold text-sm text-white btn-gradient flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20 transition-all cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Đang xác thực...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={16} />
+                  Xác nhận OTP
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer actions */}
+          <div className="mt-6 flex items-center justify-between">
+            <button
+              onClick={handleResend}
+              disabled={resendLoading || countdown > 0}
+              className="flex items-center gap-1.5 text-sm font-semibold transition-all cursor-pointer disabled:opacity-40"
+            >
+              {countdown > 0 ? (
+                <span className="text-slate-500 text-xs">
+                  Gửi lại sau{' '}
+                  <span className="font-bold text-indigo-400">{countdown}s</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300">
+                  <RefreshCw size={13} className={resendLoading ? 'animate-spin' : ''} />
+                  {resendLoading ? 'Đang gửi...' : 'Gửi lại mã OTP'}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

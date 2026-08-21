@@ -505,7 +505,7 @@ export const LandingPage: React.FC = () => {
         { word: 'Tense', ipa: '/tens/', meaning: 'Thì (trong ngữ pháp)', example: 'English has twelve main tenses.', exampleMeaning: 'Tiếng Anh có mười hai thì chính.' }
       ];
     }
-    
+
     if (nameLower.includes('phrasal') || nameLower.includes('verb')) {
       return [
         { word: 'Bring up', ipa: '/brɪŋ ʌp/', meaning: 'Nuôi nấng, đề cập', example: 'She brought up five children by herself.', exampleMeaning: 'Cô ấy đã tự mình nuôi nẵng năm đứa con.' },
@@ -540,7 +540,7 @@ export const LandingPage: React.FC = () => {
     setIsCardFlipped(false);
     setVocabQuizAnswers({});
     setVocabQuizSubmitted(false);
-    
+
     // Prepare match game shuffles
     const selectedWords = words.slice(0, 6);
     const cards: any[] = [];
@@ -625,7 +625,7 @@ export const LandingPage: React.FC = () => {
   const runAIExtractorSimulation = (fileName: string, fileSize: string) => {
     setIsExtracting(true);
     setExtractionProgress(10);
-    
+
     // Simulate extraction loading increments
     const interval = setInterval(() => {
       setExtractionProgress(prev => {
@@ -634,11 +634,11 @@ export const LandingPage: React.FC = () => {
           setTimeout(() => {
             setIsExtracting(false);
             setExtractionProgress(0);
-            
+
             // Auto generate dynamic questions based on current subject
             const subject = activeMaterialsSubject || 'Toán học';
             const generated = generateAIQuestionsForSubject(subject);
-            
+
             setTempFileForConfig({ name: fileName, size: fileSize });
             setConfigQuestions(generated);
             setConfigExamTitle(fileName.replace(/\.[^/.]+$/, ""));
@@ -849,7 +849,7 @@ export const LandingPage: React.FC = () => {
     if (e.dataTransfer.files && e.dataTransfer.files[0] && activeMaterialsSubject && activeChapter) {
       const file = e.dataTransfer.files[0];
       const fileSize = (file.size / 1024 / 1024).toFixed(1) + ' MB';
-      
+
       runAIExtractorSimulation(file.name, fileSize);
     }
   };
@@ -863,7 +863,7 @@ export const LandingPage: React.FC = () => {
     if (e.target.files && e.target.files[0] && activeMaterialsSubject && activeChapter) {
       const file = e.target.files[0];
       const fileSize = (file.size / 1024 / 1024).toFixed(1) + ' MB';
-      
+
       runAIExtractorSimulation(file.name, fileSize);
     }
   };
@@ -942,7 +942,7 @@ export const LandingPage: React.FC = () => {
 
     const currentQuestions = activeExam?.questions || [];
     let score = 0;
-    
+
     // If no custom questions are associated, grade mock questions
     if (currentQuestions.length === 0) {
       const mockKeys: Record<number, string> = { 1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'A', 6: 'B', 7: 'C', 8: 'D', 9: 'A', 10: 'B' };
@@ -1033,10 +1033,10 @@ export const LandingPage: React.FC = () => {
       };
 
       const fileLower = file.name.toLowerCase();
-      const isEnglish = activeMaterialsSubject === 'Tiếng Anh' || 
-        fileLower.includes('english') || 
-        fileLower.includes('tieng anh') || 
-        fileLower.includes('grammar') || 
+      const isEnglish = activeMaterialsSubject === 'Tiếng Anh' ||
+        fileLower.includes('english') ||
+        fileLower.includes('tieng anh') ||
+        fileLower.includes('grammar') ||
         fileLower.includes('verb');
 
       if (isEnglish) {
@@ -1143,12 +1143,12 @@ export const LandingPage: React.FC = () => {
                 {/* 1. Flashcard Mode */}
                 {vocabMode === 'flashcard' && (
                   <div className="flex flex-col items-center gap-8 py-4">
-                    <div 
+                    <div
                       onClick={() => setIsCardFlipped(!isCardFlipped)}
                       className="w-full max-w-md h-64 perspective-1000 cursor-pointer group"
                     >
                       <div className={`relative w-full h-full preserve-3d duration-500 flex items-center justify-center rounded-3xl border border-slate-250 shadow-md ${isCardFlipped ? 'rotate-y-180' : ''}`}>
-                        
+
                         {/* Card Front */}
                         <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-white to-slate-50 rounded-3xl p-6 flex flex-col items-center justify-center gap-4 text-center">
                           <span className="text-xs text-sky-500 uppercase tracking-widest font-extrabold">Từ vựng (English)</span>
@@ -1174,7 +1174,7 @@ export const LandingPage: React.FC = () => {
                         <div className="absolute inset-0 backface-hidden bg-slate-900 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-4 text-center rotate-y-180 shadow-2xl">
                           <span className="text-xs text-emerald-400 uppercase tracking-widest font-extrabold">Ý nghĩa (Vietnamese)</span>
                           <h3 className="text-2xl font-bold text-white leading-snug">{vocabWords[currentCardIdx].meaning}</h3>
-                          
+
                           <div className="border-t border-slate-800/80 pt-4 mt-2 max-w-xs">
                             <p className="text-xs italic text-slate-300 font-medium">"{vocabWords[currentCardIdx].example}"</p>
                             <p className="text-[10px] text-slate-400 font-semibold mt-1">({vocabWords[currentCardIdx].exampleMeaning})</p>
@@ -1643,13 +1643,13 @@ export const LandingPage: React.FC = () => {
           {examSubmitted && (
             <div className="bg-white border border-slate-200/80 p-8 rounded-3xl shadow-lg flex flex-col gap-6 items-center max-w-3xl mx-auto w-full mt-4 text-center">
               <Award size={48} className="text-amber-500 animate-bounce" />
-              
+
               <div className="border-[6px] border-double border-slate-300 p-8 rounded-2xl w-full bg-slate-50/50 flex flex-col gap-5 items-center relative overflow-hidden select-none">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/10 to-transparent rounded-bl-full"></div>
-                
+
                 <h4 className="font-extrabold text-slate-400 text-xs uppercase tracking-widest">GIẤY CHỨNG NHẬN KẾT QUẢ THI THỬ</h4>
                 <h3 className="font-serif text-slate-800 text-xl sm:text-2xl font-bold italic mt-1">Huy Hoàng Tutor Center</h3>
-                
+
                 <p className="text-xs sm:text-sm text-slate-650 max-w-md leading-relaxed mt-2">
                   Chứng nhận học viên <strong className="text-slate-800">{studentName}</strong> {studentClass ? `(Lớp: ${studentClass})` : ''} đã hoàn thành bài thi thử trắc nghiệm môn học <strong className="text-slate-800">{activeMaterialsSubject} Lớp {activeGrade}</strong> theo đúng cấu trúc tiêu chuẩn của Bộ Giáo dục & Đào tạo.
                 </p>
@@ -1698,14 +1698,13 @@ export const LandingPage: React.FC = () => {
             {heroSlides.map((slide, index) => (
               <div
                 key={slide.id}
-                className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${
-                  index === currentSlide ? 'opacity-65 scale-105' : 'opacity-0 scale-100'
-                }`}
+                className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${index === currentSlide ? 'opacity-65 scale-105' : 'opacity-0 scale-100'
+                  }`}
                 style={{ backgroundImage: `url(${slide.image})` }}
               />
             ))}
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
-            
+
             {/* Content Container (Key changes trigger entry animations) */}
             <div key={currentSlide} className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-12 py-16 flex flex-col lg:flex-row items-center justify-between gap-12 text-white animate-fade-in-up">
               {/* Text Column */}
@@ -1721,7 +1720,7 @@ export const LandingPage: React.FC = () => {
                 <p className="text-slate-300 text-xs sm:text-sm max-w-lg leading-relaxed font-medium">
                   {heroSlides[currentSlide].description}
                 </p>
-                
+
                 {/* Immersive Search Bar (Keep active for first slide or all) */}
                 <div className="mt-2 flex w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 p-1.5 rounded-2xl items-center shadow-lg focus-within:ring-2 focus-within:ring-amber-400 focus-within:border-transparent transition-all">
                   <div className="pl-3.5 text-slate-300">
@@ -1736,7 +1735,7 @@ export const LandingPage: React.FC = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Floating Achievements counter card */}
               <div className="hidden lg:flex flex-col gap-5 bg-white/10 backdrop-blur-md border border-white/25 p-7 rounded-3xl w-80 shadow-2xl">
                 <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest border-b border-white/10 pb-2 mb-1">
@@ -1761,9 +1760,8 @@ export const LandingPage: React.FC = () => {
                 <button
                   key={slide.id}
                   onClick={() => setCurrentSlide(slide.id)}
-                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                    slide.id === currentSlide ? 'w-8 bg-amber-400' : 'w-2 bg-white/40 hover:bg-white/60'
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${slide.id === currentSlide ? 'w-8 bg-amber-400' : 'w-2 bg-white/40 hover:bg-white/60'
+                    }`}
                   title={`Xem slide ${slide.id + 1}`}
                 />
               ))}

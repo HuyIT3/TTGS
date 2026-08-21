@@ -34,3 +34,7 @@ export class ResendOtpDto {
   type!: string;
 }
 
+export class GoogleLoginDto {
+  idToken!: string;  // Google ID token from frontend
+  role?: string;     // 'STUDENT' | 'TEACHER' - optional, default STUDENT
+}

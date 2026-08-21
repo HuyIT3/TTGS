@@ -6,7 +6,7 @@ import huyImg from '../assets/huy.jpg';
 
 export const AboutUs: React.FC = () => {
   return (
-    <div className="w-full min-h-screen py-10 px-6 lg:px-12 flex flex-col gap-12 relative bg-slate-50 bg-notebook-grid text-slate-800 overflow-hidden dark:bg-slate-950 dark:text-slate-200">
+    <div className="w-full min-h-screen py-10 px-6 lg:px-12 flex flex-col gap-12 relative bg-[#080c14] bg-dot-grid text-slate-200 overflow-hidden">
       
       {/* Educational Floating Background Icons */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.12] dark:opacity-[0.06] select-none">
