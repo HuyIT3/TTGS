@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Search, SlidersHorizontal, BookOpen, Star, GraduationCap, MapPin, Calendar, Clock, DollarSign, X, Sparkles, FileText, Download, FolderOpen, Upload, Trash2, ArrowLeft, Award, FileSpreadsheet, Timer, Plus, Lock, Cpu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import MaterialsView from '../components/MaterialsView';
+import heroImg from '../assets/hero.jpg';
 
 interface Feedback {
   rating: number;
@@ -139,6 +140,86 @@ export const LandingPage: React.FC = () => {
 
   // Checks if the user is authorized to upload
   const canUpload = user?.role === 'TEACHER' || isTeacherRole;
+
+  // Admin Tutor Profile Edit States
+  const [isEditingTutor, setIsEditingTutor] = useState(false);
+  const [editFullName, setEditFullName] = useState('');
+  const [editExperience, setEditExperience] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [editHourlyRate, setEditHourlyRate] = useState(150000);
+  const [editSubjects, setEditSubjects] = useState('');
+  const [editAvatar, setEditAvatar] = useState('');
+
+  const handleOpenTutorDetail = (tutor: Tutor) => {
+    setSelectedTutor(tutor);
+    setIsEditingTutor(false);
+    setEditFullName(tutor.user.fullName);
+    setEditExperience(tutor.experience);
+    setEditBio(tutor.bio);
+    setEditHourlyRate(tutor.hourlyRate);
+    setEditSubjects(tutor.subjects.join(', '));
+    setEditAvatar(tutor.user.avatar || '');
+  };
+
+  const handleSaveTutorProfile = async () => {
+    try {
+      const updatedData = {
+        fullName: editFullName.trim(),
+        experience: editExperience.trim(),
+        bio: editBio.trim(),
+        hourlyRate: Number(editHourlyRate),
+        subjects: editSubjects.split(',').map(s => s.trim()).filter(Boolean),
+        avatar: editAvatar.trim() || undefined
+      };
+
+      if (!updatedData.fullName) {
+        alert('Vui lòng điền Họ và tên gia sư!');
+        return;
+      }
+
+      if (selectedTutor && !selectedTutor.id.startsWith('t-')) {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${apiUrl}/users/tutors/${selectedTutor.id}/profile`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(updatedData)
+        });
+
+        if (!response.ok) {
+          const errMsg = await response.json();
+          throw new Error(errMsg.message || 'Cập nhật thất bại.');
+        }
+
+        const updatedTutor = await response.json();
+        setTutors(prev => prev.map(t => t.id === selectedTutor.id ? { ...t, ...updatedTutor } : t));
+        alert('Cập nhật hồ sơ gia sư thành công trên Hệ thống!');
+      } else if (selectedTutor) {
+        const updatedMock: Tutor = {
+          ...selectedTutor,
+          subjects: updatedData.subjects,
+          bio: updatedData.bio,
+          experience: updatedData.experience,
+          hourlyRate: updatedData.hourlyRate,
+          user: {
+            ...selectedTutor.user,
+            fullName: updatedData.fullName,
+            avatar: updatedData.avatar
+          }
+        };
+        setTutors(prev => prev.map(t => t.id === selectedTutor.id ? updatedMock : t));
+        alert('Cập nhật hồ sơ gia sư mẫu thành công!');
+      }
+
+      setIsEditingTutor(false);
+      setSelectedTutor(null);
+    } catch (e: any) {
+      alert('Lỗi cập nhật: ' + e.message);
+    }
+  };
+
 
   // Presets of THPT Questions for preview
   const presetQuestions: MaterialQuestion[] = [
@@ -1554,51 +1635,70 @@ export const LandingPage: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Hero Section */}
-          <header className="max-w-4xl mx-auto text-center flex flex-col gap-5 animate-fade-in-up">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold text-sky-600 bg-sky-50 border border-sky-200/60 max-w-fit mx-auto uppercase tracking-wider shadow-sm">
-              <Sparkles size={12} className="animate-spin text-sky-500" style={{ animationDuration: '8s' }} />
-              <span>Hệ thống Gia sư Uy tín - Chất lượng</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1.2] text-slate-900">
-              Nền tảng Gia sư
-              <br />
-              <span className="text-gradient-primary">Huy Hoàng Tutor Center</span>
-            </h1>
-            <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-              Kết nối gia sư chất lượng cao, tận tâm với học sinh cấp 1, 2, 3 và ôn thi đại học. Giải pháp tối ưu nâng cao học lực và điểm số thi cử.
-            </p>
+          {/* Immersive Full-Bleed Hero Section */}
+          <header className="-mx-6 lg:-mx-12 -mt-10 mb-10 relative min-h-[480px] md:min-h-[580px] overflow-hidden flex items-center bg-slate-950">
+            {/* Background Image with Ken Burns animation */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-70 transition-transform duration-[20s] hover:scale-105"
+              style={{ backgroundImage: `url(${heroImg})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
+            
+            {/* Content Container */}
+            <div className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-12 py-16 flex flex-col lg:flex-row items-center justify-between gap-12 text-white">
+              {/* Text Column */}
+              <div className="flex flex-col gap-6 max-w-2xl animate-fade-in-up">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 max-w-fit uppercase tracking-wider shadow-sm backdrop-blur-md">
+                  <span>Hệ thống Gia sư Hoa Hướng Dương</span>
+                </div>
+                <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.15] drop-shadow-md">
+                  Nâng Tầm Tri Thức
+                  <br />
+                  <span className="text-amber-400">Bứt Phá Điểm Số</span>
+                </h1>
+                <p className="text-slate-300 text-xs sm:text-sm max-w-lg leading-relaxed font-medium">
+                  Kết nối gia sư chất lượng cao, tận tâm với học sinh cấp 1, 2, 3 và ôn thi đại học. Giải pháp tối ưu nâng cao học lực, điểm số thi cử và định hình tương lai.
+                </p>
 
-            {/* Quick Search */}
-            <div className="mt-4 flex max-w-xl mx-auto w-full bg-white border border-slate-200/80 p-2 rounded-2xl items-center shadow-md relative">
-              <div className="pl-3.5 text-slate-400">
-                <Search size={16} />
+                {/* Immersive Search Bar */}
+                <div className="mt-2 flex w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 p-1.5 rounded-2xl items-center shadow-lg focus-within:ring-2 focus-within:ring-amber-400 focus-within:border-transparent transition-all">
+                  <div className="pl-3.5 text-slate-300">
+                    <Search size={16} />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm gia sư, môn học..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-transparent border-0 outline-none px-3 py-2.5 text-white text-xs sm:text-sm placeholder-slate-400 focus:ring-0"
+                  />
+                </div>
               </div>
-              <input
-                type="text"
-                placeholder="Tìm theo tên gia sư hoặc môn học..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-transparent border-0 outline-none px-3.5 py-2.5 text-slate-800 text-xs sm:text-sm placeholder-slate-400 focus:ring-0"
-              />
+              
+              {/* Floating Achievements counter card */}
+              <div className="hidden lg:flex flex-col gap-5 bg-white/10 backdrop-blur-md border border-white/25 p-7 rounded-3xl w-80 shadow-2xl animate-fade-in-up delay-200">
+                <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest border-b border-white/10 pb-2 mb-1">Thành Tựu Đạt Được</h4>
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-black text-white leading-none">100+</span>
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Gia sư chất lượng</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-black text-white leading-none">350+</span>
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Lớp học thành công</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-black text-white leading-none">98%</span>
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Phản hồi 5 sao</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-black text-white leading-none">95%</span>
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider mt-1.5 leading-tight">Học sinh tiến bộ</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </header>
-
-          {/* Stats Counter */}
-          <section className="max-w-5xl mx-auto w-full grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { label: 'Gia sư xuất sắc', count: '100+' },
-              { label: 'Lớp học đã giao', count: '350+' },
-              { label: 'Đánh giá 5 sao', count: '98%' },
-              { label: 'Học sinh tiến bộ', count: '95%' },
-            ].map((stat, idx) => (
-              <div key={idx} className="bg-white border border-slate-200/60 p-5 rounded-2xl text-center shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-sky-500/5 to-transparent rounded-bl-full pointer-events-none transition-transform duration-300 group-hover:scale-110"></div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-sky-600 mb-0.5">{stat.count}</h3>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </section>
 
           {/* Main Content Area */}
           <main className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1667,7 +1767,7 @@ export const LandingPage: React.FC = () => {
                           className="w-14 h-14 rounded-xl object-cover border border-slate-100 shadow-sm"
                         />
                         <div className="flex flex-col gap-0.5">
-                          <h3 className="font-bold text-slate-800 hover:text-sky-655 transition-colors cursor-pointer text-sm sm:text-base" onClick={() => setSelectedTutor(tutor)}>
+                          <h3 className="font-bold text-slate-800 hover:text-sky-655 transition-colors cursor-pointer text-sm sm:text-base" onClick={() => handleOpenTutorDetail(tutor)}>
                             {tutor.user.fullName}
                           </h3>
                           <span className="text-[11px] text-slate-500 font-semibold">{tutor.experience}</span>
@@ -1697,7 +1797,7 @@ export const LandingPage: React.FC = () => {
                           <span className="text-sm font-extrabold text-sky-600">{tutor.hourlyRate.toLocaleString('vi-VN')}đ / giờ</span>
                         </div>
                         <button
-                          onClick={() => setSelectedTutor(tutor)}
+                          onClick={() => handleOpenTutorDetail(tutor)}
                           className="px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-lg transition-all cursor-pointer active:scale-95 shadow-sm"
                         >
                           Chi tiết
@@ -1784,30 +1884,64 @@ export const LandingPage: React.FC = () => {
             <MaterialsView />
           </section>
 
-          {/* Tutor Profile Detail Modal */}
           {selectedTutor && (
             <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto animate-fade-in-up">
                 {/* Header banner */}
                 <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-start">
-                  <div className="flex gap-4 items-start">
-                    <img
-                      src={selectedTutor.user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}
-                      alt={selectedTutor.user.fullName}
-                      className="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm"
-                    />
-                    <div className="flex flex-col gap-0.5">
-                      <h2 className="text-base sm:text-lg font-bold text-slate-800">{selectedTutor.user.fullName}</h2>
-                      <span className="text-xs text-sky-600 font-bold">{selectedTutor.experience}</span>
-                      <div className="flex items-center gap-1 text-amber-500 text-xs mt-0.5 font-bold">
-                        <Star size={12} fill="currentColor" />
-                        <span>5.0 (Tốt)</span>
+                  {isEditingTutor ? (
+                    <div className="flex flex-col gap-3 w-full mr-4">
+                      <h3 className="text-sm font-bold text-slate-805">Chỉnh sửa hồ sơ Gia sư</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">Họ và tên</label>
+                          <input
+                            type="text"
+                            value={editFullName}
+                            onChange={(e) => setEditFullName(e.target.value)}
+                            className="input-premium rounded-xl px-3 py-2 text-xs text-slate-800 font-bold"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">Kinh nghiệm</label>
+                          <input
+                            type="text"
+                            value={editExperience}
+                            onChange={(e) => setEditExperience(e.target.value)}
+                            className="input-premium rounded-xl px-3 py-2 text-xs text-slate-800"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase">Đường dẫn ảnh đại diện (Avatar URL)</label>
+                        <input
+                          type="text"
+                          value={editAvatar}
+                          onChange={(e) => setEditAvatar(e.target.value)}
+                          className="input-premium rounded-xl px-3 py-2 text-xs text-slate-800"
+                        />
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex gap-4 items-start">
+                      <img
+                        src={selectedTutor.user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}
+                        alt={selectedTutor.user.fullName}
+                        className="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm"
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <h2 className="text-base sm:text-lg font-bold text-slate-800">{selectedTutor.user.fullName}</h2>
+                        <span className="text-xs text-sky-605 font-bold">{selectedTutor.experience}</span>
+                        <div className="flex items-center gap-1 text-amber-500 text-xs mt-0.5 font-bold">
+                          <Star size={12} fill="currentColor" />
+                          <span>5.0 (Tốt)</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <button
                     onClick={() => setSelectedTutor(null)}
-                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-655 transition-all cursor-pointer active:scale-95"
+                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-655 transition-all cursor-pointer active:scale-95 shrink-0"
                   >
                     <X size={15} />
                   </button>
@@ -1815,77 +1949,140 @@ export const LandingPage: React.FC = () => {
 
                 {/* Profile Content */}
                 <div className="p-6 flex flex-col gap-5 text-slate-700">
-                  <div>
-                    <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Giới thiệu bản thân</h4>
-                    <p className="text-xs sm:text-sm text-slate-650 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      {selectedTutor.bio}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Môn học nhận dạy</h4>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedTutor.subjects.map((sub, idx) => (
-                        <span key={idx} className="px-3 py-1 rounded-lg text-xs font-bold bg-sky-50 border border-sky-100 text-sky-600">
-                          {sub}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Thông tin học phí đề xuất</h4>
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      <DollarSign size={15} className="text-emerald-600" />
-                      <span>Học phí giảng dạy:</span>
-                      <span className="font-extrabold text-sky-600 text-sm sm:text-base">{selectedTutor.hourlyRate.toLocaleString('vi-VN')} đ / giờ</span>
-                    </div>
-                  </div>
-
-                  {selectedTutor.feedbacks && selectedTutor.feedbacks.length > 0 && (
-                    <div>
-                      <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2.5">Đánh giá từ phụ huynh & học sinh</h4>
-                      <div className="flex flex-col gap-2.5">
-                        {selectedTutor.feedbacks.map((fb, idx) => (
-                          <div key={idx} className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex flex-col gap-1.5">
-                            <div className="flex justify-between items-center">
-                              <span className="font-bold text-slate-700 text-xs">{fb.student.user.fullName}</span>
-                              <div className="flex gap-0.5 text-amber-500">
-                                {Array.from({ length: fb.rating }).map((_, i) => (
-                                  <Star key={i} size={10} fill="currentColor" className="border-0" />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="text-xs text-slate-555 leading-relaxed italic">
-                              "{fb.comment}"
-                            </p>
-                          </div>
-                        ))}
+                  {isEditingTutor ? (
+                    <>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase">Giới thiệu bản thân (Bio)</label>
+                        <textarea
+                          rows={3}
+                          value={editBio}
+                          onChange={(e) => setEditBio(e.target.value)}
+                          className="input-premium rounded-xl px-3 py-2 text-xs text-slate-800 leading-relaxed resize-none"
+                        />
                       </div>
-                    </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase">Môn học giảng dạy (cách nhau bằng dấu phẩy)</label>
+                        <input
+                          type="text"
+                          value={editSubjects}
+                          onChange={(e) => setEditSubjects(e.target.value)}
+                          className="input-premium rounded-xl px-3 py-2 text-xs text-slate-800"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase">Học phí đề xuất (đ/giờ)</label>
+                        <input
+                          type="number"
+                          value={editHourlyRate}
+                          onChange={(e) => setEditHourlyRate(Number(e.target.value))}
+                          className="input-premium rounded-xl px-3 py-2 text-xs text-slate-800 font-bold"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Giới thiệu bản thân</h4>
+                        <p className="text-xs sm:text-sm text-slate-650 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                          {selectedTutor.bio}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Môn học nhận dạy</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {selectedTutor.subjects.map((sub, idx) => (
+                            <span key={idx} className="px-3 py-1 rounded-lg text-xs font-bold bg-sky-50 border border-sky-100 text-sky-600">
+                              {sub}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1.5">Thông tin học phí đề xuất</h4>
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                          <DollarSign size={15} className="text-emerald-600" />
+                          <span>Học phí giảng dạy:</span>
+                          <span className="font-extrabold text-sky-600 text-sm sm:text-base">{selectedTutor.hourlyRate.toLocaleString('vi-VN')} đ / giờ</span>
+                        </div>
+                      </div>
+
+                      {selectedTutor.feedbacks && selectedTutor.feedbacks.length > 0 && (
+                        <div>
+                          <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2.5">Đánh giá từ phụ huynh & học sinh</h4>
+                          <div className="flex flex-col gap-2.5">
+                            {selectedTutor.feedbacks.map((fb, idx) => (
+                              <div key={idx} className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex flex-col gap-1.5">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-bold text-slate-700 text-xs">{fb.student.user.fullName}</span>
+                                  <div className="flex gap-0.5 text-amber-500">
+                                    {Array.from({ length: fb.rating }).map((_, i) => (
+                                      <Star key={i} size={10} fill="currentColor" className="border-0" />
+                                    ))}
+                                  </div>
+                                </div>
+                                <p className="text-xs text-slate-555 leading-relaxed italic">
+                                  "{fb.comment}"
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
                 <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5">
-                  <button
-                    onClick={() => setSelectedTutor(null)}
-                    className="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-555 hover:text-slate-700 transition-colors cursor-pointer border border-slate-200 bg-white"
-                  >
-                    Đóng
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedTutor(null);
-                      if (user) {
-                        navigate(user.role === 'STUDENT' ? '/student' : '/');
-                      } else {
-                        navigate('/login');
-                      }
-                    }}
-                    className="px-4 py-2 rounded-lg text-xs font-bold text-white btn-gradient shadow-sm cursor-pointer active:scale-95"
-                  >
-                    Liên hệ Thuê Gia sư
-                  </button>
+                  {isEditingTutor ? (
+                    <>
+                      <button
+                        onClick={() => setIsEditingTutor(false)}
+                        className="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-555 hover:text-slate-700 transition-colors cursor-pointer border border-slate-200 bg-white"
+                      >
+                        Hủy
+                      </button>
+                      <button
+                        onClick={handleSaveTutorProfile}
+                        className="px-4 py-2 rounded-lg text-xs font-bold text-white btn-gradient shadow-sm cursor-pointer active:scale-95"
+                      >
+                        Lưu thay đổi
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setSelectedTutor(null)}
+                        className="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-555 hover:text-slate-700 transition-colors cursor-pointer border border-slate-200 bg-white"
+                      >
+                        Đóng
+                      </button>
+                      {user?.role === 'ADMIN' && (
+                        <button
+                          onClick={() => setIsEditingTutor(true)}
+                          className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-sm cursor-pointer active:scale-95"
+                        >
+                          Chỉnh sửa hồ sơ
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setSelectedTutor(null);
+                          if (user) {
+                            navigate(user.role === 'STUDENT' ? '/student' : '/');
+                          } else {
+                            navigate('/login');
+                          }
+                        }}
+                        className="px-4 py-2 rounded-lg text-xs font-bold text-white btn-gradient shadow-sm cursor-pointer active:scale-95"
+                      >
+                        Liên hệ Thuê Gia sư
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

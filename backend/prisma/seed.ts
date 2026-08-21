@@ -24,6 +24,7 @@ async function main() {
       fullName: 'Huy Hoàng Admin',
       phone: '0987654321',
       role: Role.ADMIN,
+      isVerified: true,
     },
   });
 
@@ -36,6 +37,7 @@ async function main() {
       phone: '0327169519',
       avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
       role: Role.TEACHER,
+      isVerified: true,
     },
   });
   const tutor1 = await prisma.tutorProfile.create({
@@ -58,6 +60,7 @@ async function main() {
       phone: '0923456789',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       role: Role.TEACHER,
+      isVerified: true,
     },
   });
   const tutor2 = await prisma.tutorProfile.create({
@@ -80,6 +83,7 @@ async function main() {
       phone: '0934567890',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       role: Role.TEACHER,
+      isVerified: true,
     },
   });
   const tutor3 = await prisma.tutorProfile.create({
@@ -103,6 +107,7 @@ async function main() {
       phone: '0945678901',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
       role: Role.STUDENT,
+      isVerified: true,
     },
   });
   const student1 = await prisma.studentProfile.create({
@@ -122,6 +127,7 @@ async function main() {
       phone: '0956789012',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
       role: Role.STUDENT,
+      isVerified: true,
     },
   });
   const student2 = await prisma.studentProfile.create({

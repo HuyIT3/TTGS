@@ -4,6 +4,11 @@ import { Sidebar } from '../components/Sidebar';
 import { BookOpen, PlusCircle, FileText, Star, MapPin, Calendar, Clock, DollarSign, X, Check, Eye, Ruler, PenTool, Compass, GraduationCap, Award, Sparkles } from 'lucide-react';
 import { ScheduleView } from '../components/ScheduleView';
 import MaterialsView from '../components/MaterialsView';
+import VocabQuizView from '../components/VocabQuizView';
+import ExamHallView from '../components/ExamHallView';
+import HomeworkView from '../components/HomeworkView';
+import AttendanceLogView from '../components/AttendanceLogView';
+import CommunityHubView from '../components/CommunityHubView';
 
 interface ActiveClass {
   id: string;
@@ -537,6 +542,31 @@ export const StudentDashboard: React.FC = () => {
             </div>
             <MaterialsView />
           </div>
+        )}
+
+        {/* Tab: Vocabulary Quiz */}
+        {activeTab === 'vocab-quiz' && (
+          <VocabQuizView />
+        )}
+
+        {/* Tab: Exam Hall */}
+        {activeTab === 'exam-hall' && (
+          <ExamHallView />
+        )}
+
+        {/* Tab: Homework */}
+        {activeTab === 'homework' && (
+          <HomeworkView />
+        )}
+
+        {/* Tab: Attendance Log */}
+        {activeTab === 'attendance-log' && (
+          <AttendanceLogView />
+        )}
+
+        {/* Tab: Community Hub */}
+        {activeTab === 'community' && (
+          <CommunityHubView />
         )}
       </main>
 

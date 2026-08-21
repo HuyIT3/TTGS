@@ -118,4 +118,34 @@ export class UsersService {
       data: { status },
     });
   }
+
+  async adminUpdateTutorProfile(tutorId: string, data: any) {
+    const tutor = await this.prisma.tutorProfile.findUnique({ where: { id: tutorId } });
+    if (!tutor) throw new NotFoundException('Gia sư không tồn tại');
+
+    await this.prisma.tutorProfile.update({
+      where: { id: tutorId },
+      data: {
+        subjects: data.subjects,
+        bio: data.bio,
+        experience: data.experience,
+        certificates: data.certificates,
+        hourlyRate: data.hourlyRate ? Number(data.hourlyRate) : undefined,
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { id: tutor.userId },
+      data: {
+        fullName: data.fullName,
+        phone: data.phone,
+        avatar: data.avatar,
+      },
+    });
+
+    return this.prisma.tutorProfile.findUnique({
+      where: { id: tutorId },
+      include: { user: true },
+    });
+  }
 }

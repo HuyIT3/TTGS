@@ -8,7 +8,7 @@ export class ChatController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async chat(@Request() req: any, @Body('message') message: string) {
+  async chat(@Request() req: any, @Body('message') message: string, @Body('systemPrompt') systemPrompt?: string) {
     const userId = req.user.id;
     const userRole = req.user.role;
 
@@ -93,10 +93,14 @@ export class ChatController {
 
     if (apiKey) {
       try {
-        const systemInstruction = `Bạn là một trợ lý AI thông minh toàn năng (General AI Assistant), đồng thời tích hợp dữ liệu học vụ của Trung tâm Gia sư Hoa Hướng Dương (Hoa Hướng Dương Tutor Center).
+        const defaultInstruction = `Bạn là một trợ lý AI thông minh toàn năng (General AI Assistant), đồng thời tích hợp dữ liệu học vụ của Trung tâm Gia sư Hoa Hướng Dương (Hoa Hướng Dương Tutor Center).
 Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng Việt thân thiện, lịch sự (bao gồm trả lời kiến thức chung, làm văn, giải bài tập, v.v.). Nếu người dùng hỏi về thông tin lịch học, lớp học, học phí hay gia sư của họ trong trung tâm, hãy sử dụng dữ liệu hệ thống dưới đây để trả lời chính xác.
 Dưới đây là thông tin tài khoản đang chat với bạn:
 ${context}`;
+
+        const systemInstruction = systemPrompt 
+          ? `${systemPrompt}\n\nDữ liệu ngữ cảnh hệ thống hiện tại về tài khoản:\n${context}` 
+          : defaultInstruction;
 
         const fullPrompt = `${systemInstruction}\n\nNgười dùng hỏi: ${message}\nTrợ lý AI trả lời:`;
 

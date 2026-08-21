@@ -41,7 +41,6 @@ export const Navbar: React.FC = () => {
         <div className="flex flex-col">
           <span className="text-base font-bold text-slate-800 tracking-wide leading-none flex items-center gap-1">
             Gia sư Hoa Hướng Dương
-            <Sparkles size={13} className="text-sky-500 animate-pulse" />
           </span>
           <span className="text-[8px] uppercase tracking-widest text-slate-400 mt-1 font-bold">ERP Portal</span>
         </div>

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, LogIn, AlertCircle, BookOpen, Ruler, PenTool, Compass, GraduationCap } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, BookOpen, Ruler, PenTool, Compass, GraduationCap, Eye, EyeOff } from 'lucide-react';
 
 export const Login: React.FC = () => {
   const { apiUrl, login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -75,6 +77,13 @@ export const Login: React.FC = () => {
 
       login(data.user, data.token);
 
+      // Lưu trạng thái remember me nếu cần
+      if (rememberMe) {
+        localStorage.setItem('remember_email', email);
+      } else {
+        localStorage.removeItem('remember_email');
+      }
+
       // Điều hướng tương ứng với vai trò
       if (data.user.role === 'ADMIN') {
         navigate('/admin');
@@ -110,7 +119,7 @@ export const Login: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-xl flex items-center gap-2 font-semibold">
+          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-xl flex items-center gap-2 font-semibold animate-shake">
             <AlertCircle size={16} className="text-rose-500 shrink-0" />
             <span>{error}</span>
           </div>
@@ -133,23 +142,41 @@ export const Login: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mật khẩu</label>
-              <Link to="/forgot-password" className="text-[11px] font-semibold text-sky-600 hover:text-sky-700 transition-colors">
-                Quên mật khẩu?
-              </Link>
-            </div>
-            <div className="flex items-center input-premium rounded-xl px-3.5 py-2.5 text-slate-800 border border-slate-200 shadow-sm focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mật khẩu</label>
+            <div className="flex items-center input-premium rounded-xl px-3.5 py-2.5 text-slate-800 border border-slate-200 shadow-sm focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 relative">
               <Lock size={16} className="text-slate-400 mr-2.5" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-0 outline-none text-xs sm:text-sm placeholder-slate-400 text-slate-800 focus:ring-0"
+                className="w-full bg-transparent border-0 outline-none text-xs sm:text-sm placeholder-slate-400 text-slate-800 focus:ring-0 pr-8"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
+          </div>
+
+          {/* Remember Me and Forgot Password row */}
+          <div className="flex items-center justify-between text-xs select-none">
+            <label className="flex items-center gap-1.5 text-slate-500 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-3.5 h-3.5 cursor-pointer"
+              />
+              <span>Ghi nhớ đăng nhập</span>
+            </label>
+            <Link to="/forgot-password" className="font-semibold text-sky-650 hover:text-sky-700 transition-colors">
+              Quên mật khẩu?
+            </Link>
           </div>
 
           <button
@@ -165,6 +192,51 @@ export const Login: React.FC = () => {
             )}
           </button>
         </form>
+
+        {/* Social Login Separator */}
+        <div className="relative flex py-1 items-center">
+          <div className="flex-grow border-t border-slate-100"></div>
+          <span className="flex-shrink mx-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Hoặc đăng nhập bằng</span>
+          <div className="flex-grow border-t border-slate-100"></div>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => alert("Chức năng đăng nhập bằng Google đang được triển khai.")}
+            className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 transition-all cursor-pointer shadow-sm active:scale-95"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.68 1.54 14.98 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.85 2.99C6.2 7.54 8.87 5.04 12 5.04z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.44h6.44c-.28 1.48-1.12 2.74-2.38 3.58l3.69 2.87c2.16-1.99 3.74-4.92 3.74-8.55z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.24 14.73c-.24-.72-.38-1.5-.38-2.31s.14-1.59.38-2.31L1.39 7.12C.5 8.91 0 10.9 0 13s.5 4.09 1.39 5.88l3.85-3.15z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.69-2.87c-1.03.69-2.35 1.1-4.27 1.1-3.13 0-5.8-2.5-6.76-5.51l-3.85 2.99C3.37 20.33 7.35 23 12 23z"
+              />
+            </svg>
+            <span>Google</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => alert("Chức năng đăng nhập bằng Facebook đang được triển khai.")}
+            className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 transition-all cursor-pointer shadow-sm active:scale-95"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#1877F2">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+            </svg>
+            <span>Facebook</span>
+          </button>
+        </div>
 
         <div className="text-center text-xs text-slate-500 border-t border-slate-100 pt-4 mt-2">
           Chưa có tài khoản?{' '}

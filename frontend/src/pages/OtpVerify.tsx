@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, CheckCircle, AlertCircle, BookOpen, Ruler, PenTool, Compass, GraduationCap, ShieldCheck } from 'lucide-react';
@@ -11,11 +11,15 @@ export const OtpVerify: React.FC = () => {
   const [email, setEmail] = useState('');
   const [type, setType] = useState('VERIFY_EMAIL');
   const [code, setCode] = useState('');
+  const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(''));
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     // Lấy thông tin từ state khi navigate từ trang register/login sang
@@ -25,7 +29,66 @@ export const OtpVerify: React.FC = () => {
       if (state.type) setType(state.type);
       if (state.message) setMessage(state.message);
     }
+    // Kích hoạt countdown 60s
+    setCountdown(60);
   }, [location]);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  const handleChange = (index: number, value: string) => {
+    // Chỉ nhận giá trị số
+    const cleanValue = value.replace(/\D/g, '');
+    if (!cleanValue) {
+      const newOtpValues = [...otpValues];
+      newOtpValues[index] = '';
+      setOtpValues(newOtpValues);
+      setCode(newOtpValues.join(''));
+      return;
+    }
+
+    const newOtpValues = [...otpValues];
+    newOtpValues[index] = cleanValue.substring(cleanValue.length - 1);
+    setOtpValues(newOtpValues);
+    setCode(newOtpValues.join(''));
+
+    // Tự động nhảy sang ô tiếp theo
+    if (index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (!otpValues[index] && index > 0) {
+        const newOtpValues = [...otpValues];
+        newOtpValues[index - 1] = '';
+        setOtpValues(newOtpValues);
+        setCode(newOtpValues.join(''));
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        const newOtpValues = [...otpValues];
+        newOtpValues[index] = '';
+        setOtpValues(newOtpValues);
+        setCode(newOtpValues.join(''));
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pasteData)) {
+      const digits = pasteData.split('');
+      setOtpValues(digits);
+      setCode(pasteData);
+      inputRefs.current[5]?.focus();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +147,9 @@ export const OtpVerify: React.FC = () => {
       }
 
       setSuccess(data.message || 'Mã OTP mới đã được gửi vào email của bạn.');
+      setCountdown(60); // Khởi động lại đếm ngược 60s
+      setOtpValues(Array(6).fill('')); // Reset ô nhập liệu
+      setCode('');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -150,16 +216,22 @@ export const OtpVerify: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mã OTP (6 chữ số)</label>
-            <input
-              type="text"
-              required
-              maxLength={6}
-              placeholder="000000"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              className="w-full text-center text-xl sm:text-2xl font-bold tracking-[8px] input-premium rounded-xl px-3.5 py-2.5 text-slate-800 border border-slate-200 shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Mã OTP (6 chữ số)</label>
+            <div className="flex justify-between gap-2.5 mt-1.5">
+              {otpValues.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => { inputRefs.current[index] = el; }}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={handlePaste}
+                  className="w-12 h-12 text-center text-xl font-extrabold rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all text-slate-800 outline-none shadow-sm"
+                />
+              ))}
+            </div>
           </div>
 
           <button
@@ -174,10 +246,15 @@ export const OtpVerify: React.FC = () => {
         <div className="flex justify-between items-center text-xs border-t border-slate-100 pt-4 mt-2">
           <button
             onClick={handleResend}
-            disabled={resendLoading}
+            disabled={resendLoading || countdown > 0}
             className="text-sky-600 hover:text-sky-700 font-bold transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {resendLoading ? 'Đang gửi lại...' : 'Gửi lại mã OTP'}
+            {resendLoading 
+              ? 'Đang gửi lại...' 
+              : countdown > 0 
+                ? `Gửi lại mã (${countdown}s)` 
+                : 'Gửi lại mã OTP'
+            }
           </button>
           
           <Link to="/login" className="text-slate-500 hover:text-slate-700 font-semibold transition-colors">

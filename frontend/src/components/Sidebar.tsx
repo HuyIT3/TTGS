@@ -8,7 +8,10 @@ import {
   User,
   PlusCircle,
   GraduationCap,
-  Calendar
+  Calendar,
+  Award,
+  Timer,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +31,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           { id: 'tutors', label: 'Duyệt hồ sơ Gia sư', icon: <GraduationCap size={15} /> },
           { id: 'users', label: 'Quản lý Người dùng', icon: <Users size={15} /> },
           { id: 'requests', label: 'Quản lý yêu cầu lớp', icon: <BookOpen size={15} /> },
+          { id: 'session-audit', label: 'Giám sát buổi học', icon: <Calendar size={15} /> },
+          { id: 'community', label: 'Cộng đồng & Hỏi đáp', icon: <MessageSquare size={15} /> },
+          { id: 'chatbot-config', label: 'Cấu hình AI Chatbot', icon: <Award size={15} /> },
         ];
       case 'TEACHER':
         return [
@@ -35,6 +41,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           { id: 'classes', label: 'Lớp học đang dạy', icon: <BookOpen size={15} /> },
           { id: 'schedule', label: 'Thời khóa biểu dạy', icon: <Calendar size={15} /> },
           { id: 'materials', label: 'Học liệu & Đề thi', icon: <FileText size={15} /> },
+          { id: 'vocab-quiz', label: 'Quản lý từ vựng & Quiz', icon: <Award size={15} /> },
+          { id: 'exam-hall', label: 'Quản lý thi thử', icon: <Timer size={15} /> },
+          { id: 'homework', label: 'Quản lý Bài tập', icon: <FileText size={15} /> },
+          { id: 'attendance-log', label: 'Điểm danh & Báo cáo', icon: <Calendar size={15} /> },
+          { id: 'community', label: 'Cộng đồng & Hỏi đáp', icon: <MessageSquare size={15} /> },
           { id: 'apply', label: 'Ứng tuyển lớp mới', icon: <PlusCircle size={15} /> },
           { id: 'profile', label: 'Hồ sơ cá nhân', icon: <User size={15} /> },
         ];
@@ -43,6 +54,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           { id: 'classes', label: 'Lớp học đang học', icon: <BookOpen size={15} /> },
           { id: 'schedule', label: 'Thời khóa biểu học', icon: <Calendar size={15} /> },
           { id: 'materials', label: 'Học liệu & Đề thi', icon: <FileText size={15} /> },
+          { id: 'vocab-quiz', label: 'Luyện từ vựng (Quiz)', icon: <Award size={15} /> },
+          { id: 'exam-hall', label: 'Luyện đề & Thi thử', icon: <Timer size={15} /> },
+          { id: 'homework', label: 'Bài tập về nhà', icon: <FileText size={15} /> },
+          { id: 'attendance-log', label: 'Nhật ký học tập', icon: <Calendar size={15} /> },
+          { id: 'community', label: 'Cộng đồng & Hỏi đáp', icon: <MessageSquare size={15} /> },
           { id: 'post-request', label: 'Đăng tin tìm Gia sư', icon: <PlusCircle size={15} /> },
           { id: 'requests', label: 'Yêu cầu đã đăng', icon: <FileText size={15} /> },
         ];

@@ -54,4 +54,14 @@ export class UsersController {
   ) {
     return this.usersService.updateTutorStatus(tutorId, status);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch('tutors/:tutorId/profile')
+  adminUpdateTutorProfile(
+    @Param('tutorId') tutorId: string,
+    @Body() data: any,
+  ) {
+    return this.usersService.adminUpdateTutorProfile(tutorId, data);
+  }
 }

@@ -15,6 +15,11 @@ import {
 } from 'chart.js';
 import { BookOpen, DollarSign, Star, FileText, CheckCircle2, User, PlusCircle, Edit, X, Ruler, PenTool, Compass, GraduationCap, Award, Sparkles } from 'lucide-react';
 import MaterialsView from '../components/MaterialsView';
+import VocabQuizView from '../components/VocabQuizView';
+import ExamHallView from '../components/ExamHallView';
+import HomeworkView from '../components/HomeworkView';
+import AttendanceLogView from '../components/AttendanceLogView';
+import CommunityHubView from '../components/CommunityHubView';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -523,6 +528,31 @@ export const TeacherDashboard: React.FC = () => {
             </div>
             <MaterialsView />
           </div>
+        )}
+
+        {/* Tab: Vocabulary Quiz */}
+        {activeTab === 'vocab-quiz' && (
+          <VocabQuizView />
+        )}
+
+        {/* Tab: Exam Hall */}
+        {activeTab === 'exam-hall' && (
+          <ExamHallView />
+        )}
+
+        {/* Tab: Homework */}
+        {activeTab === 'homework' && (
+          <HomeworkView />
+        )}
+
+        {/* Tab: Attendance Log */}
+        {activeTab === 'attendance-log' && (
+          <AttendanceLogView />
+        )}
+
+        {/* Tab: Community Hub */}
+        {activeTab === 'community' && (
+          <CommunityHubView />
         )}
       </main>
 
