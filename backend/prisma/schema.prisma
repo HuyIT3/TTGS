@@ -62,9 +62,10 @@ model TutorProfile {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
-  applications TutorApplication[]
-  classes      ClassActive[]
-  feedbacks    Feedback[]
+  applications  TutorApplication[]
+  classes       ClassActive[]
+  feedbacks     Feedback[]
+  salaryPayments SalaryPayment[]
 }
 
 model StudentProfile {
@@ -163,4 +164,35 @@ model Otp {
   createdAt DateTime @default(now())
 
   @@unique([email, type])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   // ID of User who receives the notification
+  type      String   // CLASS_ASSIGNED | LEAVE_REQUEST | SALARY_PAID | PROFILE_APPROVED | APPLICATION_RECEIVED | CLASS_REMINDER | SYSTEM
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  metadata  Json?    // { classId, amount, tutorName, studentName, etc. }
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+}
+
+model SalaryPayment {
+  id        String   @id @default(uuid())
+  tutorId   String   // TutorProfile.id
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  amount    Int      // Amount paid in VND
+  month     Int      // Month 1-12
+  year      Int
+  sessions  Int      @default(0)  // Number of sessions in this period
+  note      String?
+  paidBy    String   // Admin User.id
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([tutorId])
+  @@index([month, year])
 }

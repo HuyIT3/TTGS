@@ -264,11 +264,11 @@ export class AuthService {
           });
         }
 
-        return tx.user.findUnique({
+        return (await tx.user.findUnique({
           where: { id: newUser.id },
           include: { tutorProfile: true, studentProfile: true },
-        });
-      }) as typeof user;
+        }))!;
+      }) as NonNullable<typeof user>;
     } else {
       // Existing user: update avatar if changed
       if (picture && picture !== user.avatar) {

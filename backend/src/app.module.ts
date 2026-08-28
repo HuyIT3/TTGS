@@ -10,6 +10,8 @@ import { StatsModule } from './stats/stats.module';
 import { ChatModule } from './chat/chat.module';
 import { EmailModule } from './email/email.module';
 import { OtpModule } from './otp/otp.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { SalaryModule } from './salary/salary.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { OtpModule } from './otp/otp.module';
     ChatModule,
     EmailModule,
     OtpModule,
+    NotificationsModule,
+    SalaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

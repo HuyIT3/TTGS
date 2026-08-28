@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Search, SlidersHorizontal, BookOpen, Star, GraduationCap, MapPin, Calendar, Clock, DollarSign, X, Sparkles, FileText, Download, FolderOpen, Upload, Trash2, ArrowLeft, Award, FileSpreadsheet, Timer, Plus, Lock, Cpu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -1060,35 +1060,90 @@ export const LandingPage: React.FC = () => {
     return (mins < 10 ? '0' : '') + mins + ':' + (remainingSecs < 10 ? '0' : '') + remainingSecs;
   };
 
+  // Scroll reveal for sections
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('lp-visible'); } }),
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.lp-card-reveal').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="w-full min-h-screen py-10 px-6 lg:px-12 flex flex-col gap-12 relative bg-slate-50 text-slate-800">
-      {/* 3D Cards Perspective styling */}
+    <div className="w-full min-h-screen flex flex-col relative bg-[#f8fafd] text-slate-800 lp-hero-animate">
+      {/* 3D Cards Perspective styling + enterprise overrides */}
       <style>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
+        .perspective-1000 { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(-5px); }
           75% { transform: translateX(5px); }
         }
-        .animate-shake {
-          animation: shake 0.3s ease-in-out infinite;
+        .animate-shake { animation: shake 0.3s ease-in-out infinite; }
+
+        /* Premium card */
+        .pro-card {
+          background: #ffffff;
+          border: 1px solid rgba(15,23,42,0.07);
+          box-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04);
+          transition: box-shadow .25s, border-color .25s, transform .25s;
+        }
+        .pro-card:hover {
+          border-color: rgba(56,189,248,0.45);
+          box-shadow: 0 4px 24px rgba(56,189,248,0.12), 0 1px 6px rgba(15,23,42,0.08);
+          transform: translateY(-2px);
+        }
+        /* Section label pill */
+        .section-pill {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 4px 12px; border-radius: 9999px;
+          font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+          background: linear-gradient(135deg,#eff6ff,#e0f2fe);
+          color: #0369a1; border: 1px solid rgba(56,189,248,.3);
+        }
+        /* Premium badge */
+        .tag-subject {
+          background: linear-gradient(135deg,#eff6ff,#dbeafe);
+          border: 1px solid rgba(147,197,253,.5);
+          color: #1d4ed8; font-size: 9px; font-weight: 800;
+          padding: 2px 8px; border-radius: 6px;
+        }
+        .tag-grade {
+          background: #f1f5f9; border: 1px solid rgba(148,163,184,.35);
+          color: #475569; font-size: 9px; font-weight: 700;
+          padding: 2px 8px; border-radius: 6px;
+        }
+        /* Info chip inside card */
+        .info-chip {
+          background: #f8fafc; border: 1px solid rgba(15,23,42,0.06);
+          border-radius: 10px; padding: 10px 12px;
+        }
+        /* Stat bar item */
+        .stat-item {
+          display: flex; flex-direction: column; align-items: center; gap: 2px;
+          padding: 0 28px;
+          border-right: 1px solid rgba(15,23,42,0.08);
+        }
+        .stat-item:last-child { border-right: none; }
+        /* Section title underline gradient */
+        .section-title-line {
+          width: 40px; height: 3px; border-radius: 9999px;
+          background: linear-gradient(90deg,#38bdf8,#818cf8);
+          margin-top: 4px;
+        }
+        /* Avatar ring */
+        .avatar-ring {
+          box-shadow: 0 0 0 3px #fff, 0 0 0 4.5px rgba(56,189,248,.4);
         }
       `}</style>
 
-      {/* Background Gradients */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500/5 rounded-full blur-3xl -z-10 animate-pulse-subtle"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-sky-600/5 rounded-full blur-3xl -z-10 animate-pulse-subtle"></div>
+      {/* Subtle dot grid background */}
+      <div className="fixed inset-0 -z-10 pointer-events-none" style={{backgroundImage:'radial-gradient(rgba(15,23,42,0.04) 1px,transparent 1px)',backgroundSize:'28px 28px'}} />
+      <div className="fixed top-0 right-0 w-[700px] h-[500px] -z-10 pointer-events-none" style={{background:'radial-gradient(ellipse at 80% 20%,rgba(186,230,255,0.22) 0%,transparent 70%)'}} />
 
       {/* Interactive Vocabulary Center overlay */}
       {activeVocabFile ? (
@@ -1768,7 +1823,28 @@ export const LandingPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Main Content Area */}
+          {/* ── Trust / Stats Bar ── */}
+          <div className="border-b border-slate-100 bg-white">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white text-[9px] font-black">✓</div>
+                <span className="text-[11px] font-bold text-slate-500 tracking-wide uppercase">Được tin tưởng bởi hàng nghìn phụ huynh &amp; học sinh</span>
+              </div>
+              <div className="flex items-center divide-x divide-slate-100">
+                {[
+                  { value: '500+', label: 'Gia sư xác minh' },
+                  { value: '10K+', label: 'Học sinh' },
+                  { value: '4.9/5', label: 'Đánh giá TB' },
+                  { value: '98%', label: 'Hài lòng' },
+                ].map((s) => (
+                  <div key={s.label} className="stat-item">
+                    <span className="text-base font-black text-sky-600 leading-none">{s.value}</span>
+                    <span className="text-[9px] text-slate-400 font-semibold uppercase tracking-wide whitespace-nowrap">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
           <main className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Side: Filter and Tutors List (Col-span 2) */}
             <div className="lg:col-span-2 flex flex-col gap-6">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Sidebar } from '../components/Sidebar';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,8 +13,16 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  Filler,
 } from 'chart.js';
-import { Users, GraduationCap, BookOpen, DollarSign, Check, X, ShieldAlert, Trash2, Edit3, UserPlus, Plus, Cpu, Activity, MessageSquare, Award, Calendar } from 'lucide-react';
+import {
+  Users, GraduationCap, BookOpen, DollarSign, Check, X,
+  Trash2, Edit3, UserPlus, Cpu, Activity, MessageSquare,
+  Award, Calendar, TrendingUp, TrendingDown, FileText,
+  Search, Bell, ChevronDown, Download, Filter, RotateCcw,
+  FileSpreadsheet, Database, BarChart2, RefreshCw,
+  ChevronLeft, ChevronRight, MoreVertical, Shield, ShieldAlert
+} from 'lucide-react';
 import AttendanceLogView from '../components/AttendanceLogView';
 import CommunityHubView from '../components/CommunityHubView';
 
@@ -27,7 +35,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  Filler,
 );
 
 interface UserItem {
@@ -68,9 +77,10 @@ interface ClassRequestItem {
 }
 
 export const AdminDashboard: React.FC = () => {
-  const { apiUrl, token } = useAuth();
+  const { apiUrl, token, user } = useAuth();
   const [activeTab, setActiveTab] = useState('stats');
-  
+  const [analyticsTab, setAnalyticsTab] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
+
   // Stats & Entities State
   const [stats, setStats] = useState<any>(null);
   const [usersList, setUsersList] = useState<UserItem[]>([]);
@@ -81,10 +91,8 @@ export const AdminDashboard: React.FC = () => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<UserItem | null>(null);
-
   const [showEditRequestModal, setShowEditRequestModal] = useState(false);
   const [selectedRequestForEdit, setSelectedRequestForEdit] = useState<ClassRequestItem | null>(null);
-
   const [showAssignTutorModal, setShowAssignTutorModal] = useState(false);
   const [selectedRequestForAssign, setSelectedRequestForAssign] = useState<ClassRequestItem | null>(null);
 
@@ -105,9 +113,8 @@ export const AdminDashboard: React.FC = () => {
 
   // AI Chatbot Settings Prompt State
   const [chatbotPrompt, setChatbotPrompt] = useState(() => {
-    return localStorage.getItem('ttgs_chatbot_system_prompt') || 
-      `Bạn là một trợ lý AI thông minh toàn năng (General AI Assistant), đồng thời tích hợp dữ liệu học vụ của Trung tâm Gia sư Hoa Hướng Dương (Hoa Hướng Dương Tutor Center).
-Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng Việt thân thiện, lịch sự (bao gồm trả lời kiến thức chung, làm văn, giải bài tập, v.v.).`;
+    return localStorage.getItem('ttgs_chatbot_system_prompt') ||
+      `Bạn là một trợ lý AI thông minh toàn năng (General AI Assistant), đồng thời tích hợp dữ liệu học vụ của Trung tâm Gia sư Hoa Hướng Dương (Hoa Hướng Dương Tutor Center).\nHãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng Việt thân thiện, lịch sự (bao gồm trả lời kiến thức chung, làm văn, giải bài tập, v.v.).`;
   });
 
   const mockStats = {
@@ -119,19 +126,24 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
       totalRevenue: 2400000,
     },
     dailyStats: [
-      { date: '2026-06-30', revenue: 300000 },
-      { date: '2026-07-01', revenue: 450000 },
-      { date: '2026-07-02', revenue: 200000 },
-      { date: '2026-07-03', revenue: 600000 },
-      { date: '2026-07-04', revenue: 350000 },
-      { date: '2026-07-05', revenue: 500000 },
-      { date: '2026-07-06', revenue: 700000 },
+      { date: '2026-01-01', revenue: 300000 },
+      { date: '2026-02-01', revenue: 450000 },
+      { date: '2026-03-01', revenue: 380000 },
+      { date: '2026-04-01', revenue: 600000 },
+      { date: '2026-05-01', revenue: 520000 },
+      { date: '2026-06-01', revenue: 680000 },
+      { date: '2026-07-01', revenue: 750000 },
+      { date: '2026-08-01', revenue: 640000 },
+      { date: '2026-09-01', revenue: 580000 },
+      { date: '2026-10-01', revenue: 700000 },
+      { date: '2026-11-01', revenue: 820000 },
+      { date: '2026-12-01', revenue: 760000 },
     ],
     subjectStats: [
-      { subject: 'Toán học', count: 3 },
-      { subject: 'Tiếng Anh', count: 2 },
-      { subject: 'Vật lý', count: 1 },
-      { subject: 'Hóa học', count: 1 },
+      { subject: 'Toán học', count: 42 },
+      { subject: 'Tiếng Anh', count: 28 },
+      { subject: 'Vật lý', count: 15 },
+      { subject: 'Hóa học', count: 10 },
     ],
   };
 
@@ -199,7 +211,26 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
       status: 'ASSIGNED',
       student: { user: { fullName: 'Tuệ Vương' } },
       tutorName: 'Dư Hoàng Huy'
-    }
+    },
+    {
+      id: 'req-4',
+      title: 'Học Vật lý lớp 11 nâng cao',
+      subject: 'Vật lý',
+      grade: 'Lớp 11',
+      hourlyRate: 120000,
+      status: 'COMPLETED',
+      student: { user: { fullName: 'Tuệ Vương' } },
+      tutorName: 'Dư Hoàng Huy'
+    },
+    {
+      id: 'req-5',
+      title: 'Ôn tập Ngữ văn THPT',
+      subject: 'Ngữ văn',
+      grade: 'Lớp 12',
+      hourlyRate: 90000,
+      status: 'CANCELLED',
+      student: { user: { fullName: 'Hoàng Mai Chi' } }
+    },
   ];
 
   // Persistent localStorage fallback
@@ -210,7 +241,6 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
     } else {
       fetchUsers();
     }
-
     const savedRequests = localStorage.getItem('ttgs_admin_requests');
     if (savedRequests) {
       setRequestsList(JSON.parse(savedRequests));
@@ -306,7 +336,6 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
   const handleAddUserSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userFullName.trim() || !userEmail.trim()) return;
-
     const newUser: UserItem = {
       id: `u-custom-${Date.now()}`,
       email: userEmail,
@@ -315,14 +344,10 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
       role: userRole,
       isActive: userIsActive,
     };
-
     setUsersList(prev => [newUser, ...prev]);
     setShowAddUserModal(false);
-    setUserFullName('');
-    setUserEmail('');
-    setUserPhone('');
-    setUserRole('STUDENT');
-    setUserIsActive(true);
+    setUserFullName(''); setUserEmail(''); setUserPhone('');
+    setUserRole('STUDENT'); setUserIsActive(true);
   };
 
   const handleEditUserClick = (userItem: UserItem) => {
@@ -338,21 +363,12 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
   const handleEditUserSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUserForEdit) return;
-
     setUsersList(prev => prev.map(u => u.id === selectedUserForEdit.id ? {
-      ...u,
-      fullName: userFullName,
-      email: userEmail,
-      phone: userPhone,
-      role: userRole,
-      isActive: userIsActive,
+      ...u, fullName: userFullName, email: userEmail, phone: userPhone, role: userRole, isActive: userIsActive,
     } : u));
-
     setShowEditUserModal(false);
     setSelectedUserForEdit(null);
-    setUserFullName('');
-    setUserEmail('');
-    setUserPhone('');
+    setUserFullName(''); setUserEmail(''); setUserPhone('');
   };
 
   const handleDeleteUser = (userId: string) => {
@@ -381,10 +397,7 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
     try {
       const res = await fetch(`${apiUrl}/users/tutors/${tutorId}/status`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status })
       });
       if (res.ok) {
@@ -397,30 +410,19 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
     }
   };
 
-  // Class requests CRUD handlers
   const handleEditRequestClick = (req: ClassRequestItem) => {
     setSelectedRequestForEdit(req);
-    setReqTitle(req.title);
-    setReqSubject(req.subject);
-    setReqGrade(req.grade);
-    setReqRate(req.hourlyRate);
-    setReqStatus(req.status);
+    setReqTitle(req.title); setReqSubject(req.subject); setReqGrade(req.grade);
+    setReqRate(req.hourlyRate); setReqStatus(req.status);
     setShowEditRequestModal(true);
   };
 
   const handleEditRequestSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRequestForEdit) return;
-
     setRequestsList(prev => prev.map(r => r.id === selectedRequestForEdit.id ? {
-      ...r,
-      title: reqTitle,
-      subject: reqSubject,
-      grade: reqGrade,
-      hourlyRate: reqRate,
-      status: reqStatus,
+      ...r, title: reqTitle, subject: reqSubject, grade: reqGrade, hourlyRate: reqRate, status: reqStatus,
     } : r));
-
     setShowEditRequestModal(false);
     setSelectedRequestForEdit(null);
   };
@@ -439,834 +441,1114 @@ Hãy trả lời bất kỳ câu hỏi nào của người dùng bằng tiếng 
   const handleAssignTutorSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRequestForAssign || !reqTutorId) return;
-
     const tutor = tutorsList.find(t => t.id === reqTutorId);
     if (!tutor) return;
-
     setRequestsList(prev => prev.map(r => r.id === selectedRequestForAssign.id ? {
-      ...r,
-      status: 'ASSIGNED',
-      tutorName: tutor.user.fullName
+      ...r, status: 'ASSIGNED', tutorName: tutor.user.fullName
     } : r));
-
     setShowAssignTutorModal(false);
     setSelectedRequestForAssign(null);
     setReqTutorId('');
   };
 
-  // Chatbot Config Prompt Submission
   const handleSaveChatbotPrompt = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('ttgs_chatbot_system_prompt', chatbotPrompt);
     alert('Đã cập nhật chỉ thị hệ thống cho AI Chatbot thành công!');
   };
 
-  // Charts
-  const revenueChartData = {
-    labels: (stats || mockStats).dailyStats.map((d: any) => {
-      const dateObj = new Date(d.date);
-      return `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
-    }),
-    datasets: [
-      {
-        label: 'Doanh thu phí dịch vụ (VND)',
-        data: (stats || mockStats).dailyStats.map((d: any) => d.revenue),
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
-
-  const subjectChartData = {
-    labels: (stats || mockStats).subjectStats.map((s: any) => s.subject),
-    datasets: [
-      {
-        label: 'Số lớp học',
-        data: (stats || mockStats).subjectStats.map((s: any) => s.count),
-        backgroundColor: [
-          'rgba(99, 102, 241, 0.7)',
-          'rgba(236, 72, 153, 0.7)',
-          'rgba(245, 158, 11, 0.7)',
-          'rgba(16, 185, 129, 0.7)',
-        ],
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-      },
-    ],
-  };
-
+  // ── Charts data ──────────────────────────────────────────────────────────
   const currentStats = stats || mockStats;
 
+  const monthLabels = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+  const quarterLabels = ['Q1', 'Q2', 'Q3', 'Q4'];
+  const yearLabels = ['2022', '2023', '2024', '2025', '2026'];
+
+  const analyticsDataMap = {
+    monthly: {
+      labels: monthLabels,
+      data: currentStats.dailyStats.map((d: any) => d.revenue / 1000),
+    },
+    quarterly: {
+      labels: quarterLabels,
+      data: [1130000, 1800000, 2120000, 2280000].map(v => v / 1000),
+    },
+    yearly: {
+      labels: yearLabels,
+      data: [3200000, 4800000, 6100000, 7400000, 2400000].map(v => v / 1000),
+    },
+  };
+
+  const activeAnalytics = analyticsDataMap[analyticsTab];
+
+  const revenueChartData = {
+    labels: activeAnalytics.labels,
+    datasets: [
+      {
+        label: 'Doanh thu (nghìn đ)',
+        data: activeAnalytics.data,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.08)',
+        tension: 0.45,
+        fill: true,
+        pointBackgroundColor: '#6366f1',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+    ],
+  };
+
+  const totalSessions = currentStats.subjectStats.reduce((a: number, s: any) => a + s.count, 0);
+  const confirmed = Math.round(totalSessions * 0.67);
+  const pending = Math.round(totalSessions * 0.18);
+  const cancelled = Math.round(totalSessions * 0.07);
+  const refunded = totalSessions - confirmed - pending - cancelled;
+
+  const doughnutData = {
+    labels: ['Đã xác nhận', 'Chờ xử lý', 'Đã hủy', 'Hoàn tiền'],
+    datasets: [{
+      data: [confirmed, pending, cancelled, refunded],
+      backgroundColor: ['#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'],
+      borderWidth: 0,
+      hoverOffset: 6,
+    }],
+  };
+
+  const subjectBarData = {
+    labels: currentStats.subjectStats.map((s: any) => s.subject),
+    datasets: [{
+      label: 'Số lớp học',
+      data: currentStats.subjectStats.map((s: any) => s.count),
+      backgroundColor: ['#6366f1', '#f59e0b', '#10b981', '#ef4444'],
+      borderRadius: 6,
+      borderSkipped: false,
+    }],
+  };
+
+  // Top performing subjects (for progress bars)
+  const maxSubjectCount = Math.max(...currentStats.subjectStats.map((s: any) => s.count));
+  const topSubjects = [...currentStats.subjectStats]
+    .sort((a: any, b: any) => b.count - a.count)
+    .map((s: any) => ({
+      name: s.subject,
+      count: s.count,
+      pct: Math.round((s.count / maxSubjectCount) * 100),
+    }));
+
+  // Learner insights
+  const newLearners = currentStats.overview.totalStudents;
+  const repeatLearners = Math.round(currentStats.overview.totalUsers * 0.6);
+  const verifiedProfiles = currentStats.overview.totalTutors;
+
+  // ── Generated reports mock data ──────────────────────────────────────────
+  const mockReports = [
+    { id: 'RPT-1005', name: 'Báo cáo Doanh thu Tháng', category: 'Tài chính', generatedBy: 'Huy Hoàng Admin', date: '12/08/2026', status: 'ready' },
+    { id: 'RPT-1004', name: 'Hiệu suất Gia sư', category: 'Vận hành', generatedBy: 'Huy Hoàng Admin', date: '10/08/2026', status: 'ready' },
+    { id: 'RPT-1003', name: 'Thống kê Học viên', category: 'Khách hàng', generatedBy: 'Huy Hoàng Admin', date: '08/08/2026', status: 'processing' },
+    { id: 'RPT-1002', name: 'Báo cáo Lớp học theo Môn', category: 'Vận hành', generatedBy: 'Huy Hoàng Admin', date: '05/08/2026', status: 'ready' },
+    { id: 'RPT-1001', name: 'Báo cáo Gia sư Hợp tác', category: 'Đối tác', generatedBy: 'Huy Hoàng Admin', date: '02/08/2026', status: 'failed' },
+  ];
+
+  // ── Render helpers ───────────────────────────────────────────────────────
+  const StatCard = ({
+    label, value, icon, iconBg, change, changePositive, note
+  }: {
+    label: string;
+    value: string;
+    icon: React.ReactNode;
+    iconBg: string;
+    change?: string;
+    changePositive?: boolean;
+    note?: string;
+  }) => (
+    <div className="ds-stat-card">
+      <div className="ds-stat-card-top">
+        <div>
+          <p className="ds-stat-label">{label}</p>
+          <p className="ds-stat-value">{value}</p>
+        </div>
+        <div className="ds-stat-icon" style={{ background: iconBg }}>
+          {icon}
+        </div>
+      </div>
+      {change && (
+        <div className="ds-stat-change">
+          {changePositive !== undefined && (
+            changePositive
+              ? <TrendingUp size={13} className="text-emerald-500" />
+              : <TrendingDown size={13} className="text-rose-500" />
+          )}
+          <span className={changePositive ? 'text-emerald-600' : 'text-rose-500'}>
+            {change}
+          </span>
+          {note && <span className="ds-stat-note">{note}</span>}
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)] w-full relative bg-slate-50 text-slate-805">
+    <div className="ds-layout">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
-      <main className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col gap-8 relative z-10 animate-fade-in-up">
-        <div className="border-b border-slate-200/80 pb-4">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-            Quản trị Hệ thống
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Giám sát hoạt động, phê duyệt gia sư đối tác và quản lý vận hành</p>
-        </div>
 
-        {/* Tab 1: Stats */}
-        {activeTab === 'stats' && (
-          <div className="flex flex-col gap-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { label: 'Người dùng', count: currentStats.overview.totalUsers, icon: <Users size={20} />, bg: 'bg-sky-50 text-sky-655 border-sky-100' },
-                { label: 'Gia sư', count: currentStats.overview.totalTutors, icon: <GraduationCap size={20} />, bg: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
-                { label: 'Lớp hoạt động', count: currentStats.overview.activeClasses, icon: <BookOpen size={20} />, bg: 'bg-amber-50 text-amber-600 border-amber-100' },
-                { label: 'Doanh thu', count: `${currentStats.overview.totalRevenue.toLocaleString('vi-VN')}đ`, icon: <DollarSign size={20} />, bg: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-              ].map((card, idx) => (
-                <div key={idx} className="bg-white border border-slate-200/80 p-6 rounded-2xl flex items-center gap-4 relative overflow-hidden group shadow-sm">
-                  <div className={`p-3.5 rounded-xl ${card.bg} border shadow-inner`}>
-                    {card.icon}
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-widest">{card.label}</span>
-                    <span className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-0.5 block">{card.count}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 bg-white border border-slate-200/80 p-6 rounded-2xl flex flex-col gap-4 shadow-sm">
-                <h3 className="font-bold text-slate-800 text-xs sm:text-sm tracking-wide">Biểu đồ Doanh thu (7 ngày gần nhất)</h3>
-                <div className="h-72 w-full flex items-center justify-center bg-slate-50 p-2 rounded-xl border border-slate-100">
-                  <Line
-                    data={revenueChartData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { size: 9 } } },
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
-                      },
-                      plugins: { legend: { display: false } }
-                    }}
-                  />
-                </div>
+      <div className="ds-main-wrapper">
+        {/* ── Top Header Bar ── */}
+        <header className="ds-topbar">
+          <div className="ds-topbar-left">
+            <button className="ds-topbar-menu-btn" aria-label="Toggle menu">
+              <div className="w-4 flex flex-col gap-1">
+                <span className="block h-0.5 w-4 bg-slate-500 rounded" />
+                <span className="block h-0.5 w-3 bg-slate-500 rounded" />
+                <span className="block h-0.5 w-4 bg-slate-500 rounded" />
               </div>
-
-              <div className="bg-white border border-slate-200/80 p-6 rounded-2xl flex flex-col gap-4 shadow-sm">
-                <h3 className="font-bold text-slate-800 text-xs sm:text-sm tracking-wide">Tỷ lệ lớp theo Môn học</h3>
-                <div className="h-72 w-full flex items-center justify-center bg-slate-50 p-2 rounded-xl border border-slate-100">
-                  <Doughnut
-                    data={subjectChartData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: { legend: { position: 'bottom', labels: { color: '#64748b', boxWidth: 10, font: { size: 9 } } } }
-                    }}
-                  />
-                </div>
+            </button>
+            <div className="ds-topbar-search">
+              <Search size={14} className="ds-topbar-search-icon" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm báo cáo, thống kê..."
+                className="ds-topbar-search-input"
+              />
+              <span className="ds-topbar-search-kbd">⌘K</span>
+            </div>
+          </div>
+          <div className="ds-topbar-right">
+            <button className="ds-topbar-icon-btn" aria-label="Notifications">
+              <Bell size={17} />
+              <span className="ds-topbar-notif-dot" />
+            </button>
+            <div className="ds-topbar-user">
+              <div className="ds-topbar-avatar">
+                {user?.fullName?.charAt(0) ?? 'A'}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 2: Tutors approval */}
-        {activeTab === 'tutors' && (
-          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="font-bold text-slate-800 text-sm tracking-wide">Duyệt hồ sơ Gia sư đối tác</h3>
-            </div>
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left text-xs font-semibold text-slate-500">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase">
-                  <tr>
-                    <th className="p-4 text-[10px] tracking-wider">Gia sư</th>
-                    <th className="p-4 text-[10px] tracking-wider">Môn dạy</th>
-                    <th className="p-4 text-[10px] tracking-wider">Kinh nghiệm</th>
-                    <th className="p-4 text-[10px] tracking-wider">Học phí đề xuất</th>
-                    <th className="p-4 text-[10px] tracking-wider">Trạng thái</th>
-                    <th className="p-4 text-[10px] tracking-wider text-center">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {tutorsList.map((tutor) => (
-                    <tr key={tutor.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-slate-800 text-sm">{tutor.user.fullName}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">{tutor.user.email}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex flex-wrap gap-1">
-                          {tutor.subjects.map((sub, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded bg-sky-50 border border-sky-100 text-sky-600 text-[10px] font-bold">
-                              {sub}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-4 text-xs font-medium text-slate-500">{tutor.experience}</td>
-                      <td className="p-4 font-bold text-sky-655">{tutor.hourlyRate.toLocaleString('vi-VN')}đ/h</td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                          tutor.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                          tutor.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                          'bg-amber-50 text-amber-600 border-amber-100'
-                        }`}>
-                          {tutor.status === 'APPROVED' ? 'Đã duyệt' :
-                           tutor.status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt'}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          {tutor.status === 'PENDING' && (
-                            <>
-                              <button
-                                onClick={() => updateTutorStatus(tutor.id, 'APPROVED')}
-                                className="p-2 rounded-xl bg-sky-50 border border-sky-100 hover:bg-sky-500 text-sky-600 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
-                                title="Duyệt hồ sơ"
-                              >
-                                <Check size={14} />
-                              </button>
-                              <button
-                                onClick={() => updateTutorStatus(tutor.id, 'REJECTED')}
-                                className="p-2 rounded-xl bg-rose-50 border border-rose-100 hover:bg-rose-500 text-rose-600 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
-                                title="Từ chối"
-                              >
-                                <X size={14} />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 3: Users Account Manager */}
-        {activeTab === 'users' && (
-          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden flex flex-col gap-4">
-            <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800 text-sm tracking-wide">Quản lý tài khoản Người dùng</h3>
-              <button
-                onClick={() => {
-                  setUserFullName('');
-                  setUserEmail('');
-                  setUserPhone('');
-                  setUserRole('STUDENT');
-                  setUserIsActive(true);
-                  setShowAddUserModal(true);
-                }}
-                className="px-3.5 py-2 text-xs font-bold text-white btn-gradient rounded-xl shadow-md flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
-              >
-                <UserPlus size={14} />
-                <span>Thêm tài khoản mới</span>
-              </button>
-            </div>
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left text-xs font-semibold text-slate-505">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase">
-                  <tr>
-                    <th className="p-4 text-[10px] tracking-wider">Người dùng</th>
-                    <th className="p-4 text-[10px] tracking-wider">Email</th>
-                    <th className="p-4 text-[10px] tracking-wider">Số điện thoại</th>
-                    <th className="p-4 text-[10px] tracking-wider">Vai trò</th>
-                    <th className="p-4 text-[10px] tracking-wider">Trạng thái</th>
-                    <th className="p-4 text-[10px] tracking-wider text-center">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {usersList.map((userItem) => (
-                    <tr key={userItem.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 font-bold text-slate-800 text-sm">{userItem.fullName}</td>
-                      <td className="p-4 text-xs font-medium text-slate-500">{userItem.email}</td>
-                      <td className="p-4 text-xs font-medium text-slate-500">{userItem.phone || 'Chưa cập nhật'}</td>
-                      <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                          userItem.role === 'ADMIN' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                          userItem.role === 'TEACHER' ? 'bg-sky-50 text-sky-655 border-sky-100' :
-                          'bg-emerald-50 text-emerald-600 border-emerald-100'
-                        }`}>
-                          {userItem.role === 'ADMIN' ? 'Quản trị' : userItem.role === 'TEACHER' ? 'Gia sư' : 'Học sinh'}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                          userItem.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
-                        }`}>
-                          {userItem.isActive ? 'Đang hoạt động' : 'Đã khóa'}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEditUserClick(userItem)}
-                            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 border border-slate-200 transition-all cursor-pointer shadow-sm active:scale-90"
-                            title="Sửa thông tin"
-                          >
-                            <Edit3 size={13} />
-                          </button>
-                          
-                          {userItem.role !== 'ADMIN' && (
-                            <button
-                              onClick={() => toggleUserStatus(userItem.id)}
-                              className={`px-2 py-1.5 rounded-xl text-[9px] font-extrabold border transition-all duration-300 cursor-pointer active:scale-95 shadow-sm ${
-                                userItem.isActive
-                                  ? 'bg-rose-50 text-rose-600 border-rose-150 hover:bg-rose-500 hover:text-white'
-                                  : 'bg-emerald-50 text-emerald-600 border-emerald-150 hover:bg-emerald-500 hover:text-white'
-                              }`}
-                            >
-                              {userItem.isActive ? 'Khóa' : 'Mở khóa'}
-                            </button>
-                          )}
-
-                          {userItem.id.startsWith('u-custom-') && (
-                            <button
-                              onClick={() => handleDeleteUser(userItem.id)}
-                              className="p-2 rounded-xl bg-rose-50 border border-rose-100 hover:bg-rose-500 hover:text-white text-rose-600 transition-all cursor-pointer shadow-sm active:scale-90"
-                              title="Xóa tài khoản"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 4: Requests Manager */}
-        {activeTab === 'requests' && (
-          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="font-bold text-slate-800 text-sm tracking-wide">Quản lý yêu cầu lớp học</h3>
-            </div>
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left text-xs font-semibold text-slate-505">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase">
-                  <tr>
-                    <th className="p-4 text-[10px] tracking-wider">Lớp yêu cầu</th>
-                    <th className="p-4 text-[10px] tracking-wider">Học sinh đăng</th>
-                    <th className="p-4 text-[10px] tracking-wider">Môn học</th>
-                    <th className="p-4 text-[10px] tracking-wider">Học phí</th>
-                    <th className="p-4 text-[10px] tracking-wider">Gia sư chỉ định</th>
-                    <th className="p-4 text-[10px] tracking-wider">Trạng thái lớp</th>
-                    <th className="p-4 text-[10px] tracking-wider text-center">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {requestsList.map((request) => (
-                    <tr key={request.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 font-bold text-slate-800 text-sm">{request.title}</td>
-                      <td className="p-4 text-xs font-medium text-slate-500">{request.student.user.fullName}</td>
-                      <td className="p-4">
-                        <span className="px-2 py-0.5 rounded bg-sky-50 border border-sky-100 text-sky-600 text-[10px] font-bold mr-1">
-                          {request.subject}
-                        </span>
-                        <span className="text-xs text-slate-500 font-medium">{request.grade}</span>
-                      </td>
-                      <td className="p-4 font-bold text-sky-600">{request.hourlyRate.toLocaleString('vi-VN')}đ/h</td>
-                      <td className="p-4 text-xs font-bold text-indigo-600">{request.tutorName || 'Chưa giao lớp'}</td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                          request.status === 'OPEN' ? 'bg-sky-50 text-sky-655 border-sky-100' :
-                          request.status === 'ASSIGNED' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                          request.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                          'bg-slate-100 text-slate-500 border-slate-200'
-                        }`}>
-                          {request.status === 'OPEN' ? 'Đang tuyển' :
-                           request.status === 'ASSIGNED' ? 'Đã giao lớp' :
-                           request.status === 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy'}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEditRequestClick(request)}
-                            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-550 border border-slate-200 transition-all cursor-pointer shadow-sm active:scale-90"
-                            title="Sửa thông tin lớp"
-                          >
-                            <Edit3 size={13} />
-                          </button>
-                          
-                          {request.status === 'OPEN' && (
-                            <button
-                              onClick={() => handleAssignTutorClick(request)}
-                              className="px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-500 hover:text-white text-indigo-600 text-[10px] font-bold transition-all cursor-pointer shadow-sm active:scale-90 flex items-center gap-0.5"
-                            >
-                              <GraduationCap size={12} />
-                              <span>Giao lớp</span>
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() => handleDeleteRequest(request.id)}
-                            className="p-2 rounded-xl bg-rose-50 border border-rose-100 hover:bg-rose-500 hover:text-white text-rose-600 transition-all cursor-pointer shadow-sm active:scale-90"
-                            title="Xóa tin này"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 5: Chatbot Configuration */}
-        {activeTab === 'chatbot-config' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Prompt Editor Card */}
-            <div className="lg:col-span-2 bg-white border border-slate-200/80 p-6 rounded-3xl flex flex-col gap-5 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-xl"></div>
-              <h3 className="font-bold text-slate-800 text-base flex items-center gap-2 pb-3 border-b border-slate-100">
-                <Cpu className="text-sky-500" />
-                Thiết lập Câu lệnh hệ thống (System Prompt) cho AI Chatbot
-              </h3>
-              
-              <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-xs font-semibold leading-relaxed">
-                <strong>💡 Lưu ý:</strong> Câu lệnh này chỉ thị cho AI biết vai trò, giọng điệu phản hồi và các quy tắc khi hội thoại với Học sinh, Gia sư.
+              <div className="ds-topbar-user-info">
+                <span className="ds-topbar-user-name">{user?.fullName ?? 'Admin'}</span>
+                <span className="ds-topbar-user-role">Quản trị viên</span>
               </div>
+              <ChevronDown size={14} className="text-slate-400" />
+            </div>
+          </div>
+        </header>
 
-              <form onSubmit={handleSaveChatbotPrompt} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Prompt (Chỉ thị AI)</label>
-                  <textarea
-                    rows={8}
-                    value={chatbotPrompt}
-                    onChange={(e) => setChatbotPrompt(e.target.value)}
-                    placeholder="Nhập hướng dẫn cho chatbot ảo tại đây..."
-                    className="input-premium rounded-xl px-4 py-3 text-slate-800 text-xs sm:text-sm font-medium leading-relaxed resize-none focus:border-sky-500"
-                  />
+        {/* ── Main Content ── */}
+        <main className="ds-content">
+
+          {/* ════════════════════════════════════════════
+              TAB: STATS / DASHBOARD
+          ════════════════════════════════════════════ */}
+          {activeTab === 'stats' && (
+            <div className="ds-page">
+              {/* Page Header */}
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Thống kê & Báo cáo</h1>
+                  <p className="ds-page-subtitle">Phân tích lớp học, doanh thu, gia sư và hiệu suất vận hành.</p>
                 </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl font-bold text-xs text-white btn-gradient shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Check size={15} />
-                  <span>Cập nhật chỉ thị Chatbot AI</span>
+                <button className="ds-btn-date-range">
+                  <Calendar size={14} />
+                  <span>T8 1 – T8 31, 2026</span>
+                  <ChevronDown size={13} />
                 </button>
-              </form>
-            </div>
-
-            {/* Right Chatbot Analytics & simulated logs */}
-            <div className="flex flex-col gap-6">
-              {/* Analytics */}
-              <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-sm flex flex-col gap-4">
-                <h4 className="font-bold text-slate-800 text-xs sm:text-sm tracking-wide uppercase text-slate-400">Hiệu suất Trợ lý AI</h4>
-                
-                <div className="grid grid-cols-2 gap-3.5">
-                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Tổng hội thoại</span>
-                    <strong className="text-base font-black text-slate-700 block mt-0.5">142 lượt</strong>
-                  </div>
-                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Độ chính xác AI</span>
-                    <strong className="text-base font-black text-emerald-600 block mt-0.5">98.5%</strong>
-                  </div>
-                </div>
               </div>
 
-              {/* Logs */}
-              <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-sm flex flex-col gap-3.5 max-h-[300px] overflow-y-auto">
-                <h4 className="font-bold text-slate-800 text-xs sm:text-sm tracking-wide uppercase text-slate-400 flex items-center gap-1.5">
-                  <Activity size={14} className="text-sky-500 animate-pulse" />
-                  Nhật ký Chatbot gần đây
-                </h4>
-                
-                <div className="flex flex-col gap-2.5">
-                  {[
-                    { user: 'Tuệ Vương', msg: 'Hôm nay tôi có lịch học Toán 12 không?', reply: 'Hôm nay bạn có buổi học Toán lúc 19:00 cùng gia sư Trần Thị Lan.' },
-                    { user: 'Lê Hoàng Nam', msg: 'Làm thế nào để được duyệt hồ sơ dạy nhanh?', reply: 'Vui lòng cập nhật đầy đủ bằng cấp tiếng Anh và kinh nghiệm trong mục Hồ sơ để Admin kiểm tra duyệt nhanh nhé.' },
-                    { user: 'Cao Vũ Băng Truyền', msg: 'Xem thông tin lớp tôi dạy?', reply: 'Bạn hiện có lớp Tiếng Anh lớp 9 với học sinh Hoàng Mai Chi.' }
-                  ].map((log, idx) => (
-                    <div key={idx} className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] flex flex-col gap-1">
-                      <div className="flex justify-between items-center">
-                        <strong className="text-slate-700">{log.user}</strong>
-                        <span className="text-[9px] text-slate-400 font-semibold">Vừa xong</span>
+              {/* ── 4 Stat Cards ── */}
+              <div className="ds-stat-grid">
+                <StatCard
+                  label="TỔNG DOANH THU"
+                  value={`${(currentStats.overview.totalRevenue / 1000).toLocaleString('vi-VN')}K đ`}
+                  icon={<DollarSign size={20} />}
+                  iconBg="linear-gradient(135deg,#e0e7ff,#c7d2fe)"
+                  change="↑ 15.3%"
+                  changePositive={true}
+                  note="so với tháng trước"
+                />
+                <StatCard
+                  label="TỔNG LỚP HỌC"
+                  value={String(totalSessions)}
+                  icon={<BookOpen size={20} />}
+                  iconBg="linear-gradient(135deg,#ede9fe,#ddd6fe)"
+                  change="↑ 8.4%"
+                  changePositive={true}
+                  note="so với tháng trước"
+                />
+                <StatCard
+                  label="GIÁ TRỊ TB / LỚP"
+                  value={`${Math.round(currentStats.overview.totalRevenue / Math.max(totalSessions, 1) / 1000)}K đ`}
+                  icon={<Award size={20} />}
+                  iconBg="linear-gradient(135deg,#d1fae5,#a7f3d0)"
+                  change="↑ 6.7%"
+                  changePositive={true}
+                  note="so với tháng trước"
+                />
+                <StatCard
+                  label="TỈ LỆ HỦY LỚP"
+                  value="3.4%"
+                  icon={<X size={20} />}
+                  iconBg="linear-gradient(135deg,#fee2e2,#fecaca)"
+                  change="↓ 1.2%"
+                  changePositive={false}
+                  note="so với tháng trước"
+                />
+              </div>
+
+              {/* ── Charts Row ── */}
+              <div className="ds-charts-row">
+                {/* Revenue Analytics */}
+                <div className="ds-card ds-chart-main">
+                  <div className="ds-card-header">
+                    <div>
+                      <h3 className="ds-card-title">Phân tích Doanh thu</h3>
+                      <div className="ds-analytics-tabs">
+                        {(['monthly', 'quarterly', 'yearly'] as const).map(t => (
+                          <button
+                            key={t}
+                            onClick={() => setAnalyticsTab(t)}
+                            className={`ds-analytics-tab ${analyticsTab === t ? 'ds-analytics-tab-active' : ''}`}
+                          >
+                            {t === 'monthly' ? 'Theo tháng' : t === 'quarterly' ? 'Theo quý' : 'Theo năm'}
+                          </button>
+                        ))}
                       </div>
-                      <p className="text-slate-500 italic">"{log.msg}"</p>
-                      <p className="text-sky-650 font-medium">→ Chatbot: {log.reply}</p>
                     </div>
-                  ))}
+                    <button className="ds-btn-export">
+                      <Download size={13} />
+                      <span>Xuất</span>
+                      <ChevronDown size={12} />
+                    </button>
+                  </div>
+                  <div className="ds-chart-area">
+                    <Line
+                      data={revenueChartData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                          y: {
+                            grid: { color: '#f1f5f9' },
+                            ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => `${v}K` }
+                          },
+                          x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                          }
+                        },
+                        plugins: {
+                          legend: { display: false },
+                          tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            padding: 10,
+                            cornerRadius: 8,
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Report Summary Doughnut */}
+                <div className="ds-card ds-chart-side">
+                  <div className="ds-card-header">
+                    <h3 className="ds-card-title">Tổng quan lớp học</h3>
+                  </div>
+                  <div className="ds-doughnut-wrap">
+                    <div className="ds-doughnut-chart">
+                      <Doughnut
+                        data={doughnutData}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          cutout: '68%',
+                          plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                              backgroundColor: '#1e293b',
+                              titleColor: '#f8fafc',
+                              bodyColor: '#cbd5e1',
+                              padding: 10,
+                              cornerRadius: 8,
+                            }
+                          }
+                        }}
+                      />
+                      <div className="ds-doughnut-center">
+                        <span className="ds-doughnut-num">{totalSessions}</span>
+                        <span className="ds-doughnut-sub">Tổng số</span>
+                      </div>
+                    </div>
+                    <div className="ds-doughnut-legend">
+                      {[
+                        { label: 'Đã xác nhận', count: confirmed, pct: '67%', color: '#6366f1' },
+                        { label: 'Chờ xử lý', count: pending, pct: '18%', color: '#f59e0b' },
+                        { label: 'Đã hủy', count: cancelled, pct: '7%', color: '#ef4444' },
+                        { label: 'Hoàn tiền', count: refunded, pct: '8%', color: '#8b5cf6' },
+                      ].map(item => (
+                        <div key={item.label} className="ds-legend-item">
+                          <span className="ds-legend-dot" style={{ background: item.color }} />
+                          <span className="ds-legend-label">{item.label}</span>
+                          <span className="ds-legend-pct">{item.pct}</span>
+                          <span className="ds-legend-count">({item.count})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Reports Table Row ── */}
+              <div className="ds-reports-row">
+                {/* Generated Reports Table */}
+                <div className="ds-card ds-table-card">
+                  <div className="ds-card-header ds-table-header">
+                    <h3 className="ds-card-title">Danh sách Báo cáo</h3>
+                    <div className="ds-filter-bar">
+                      <button className="ds-filter-btn">
+                        <Filter size={12} />
+                        <span>Loại</span>
+                        <ChevronDown size={11} />
+                      </button>
+                      <button className="ds-filter-btn">
+                        <span>Trạng thái</span>
+                        <ChevronDown size={11} />
+                      </button>
+                      <button className="ds-filter-btn">
+                        <Calendar size={12} />
+                        <span>Ngày</span>
+                        <ChevronDown size={11} />
+                      </button>
+                      <button className="ds-filter-reset">
+                        <RotateCcw size={11} />
+                        <span>Đặt lại</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="ds-table-wrap">
+                    <table className="ds-table">
+                      <thead>
+                        <tr>
+                          <th>Mã báo cáo</th>
+                          <th>Tên báo cáo</th>
+                          <th>Danh mục</th>
+                          <th>Tạo bởi</th>
+                          <th>Ngày</th>
+                          <th>Trạng thái</th>
+                          <th>Hành động</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {mockReports.map(r => (
+                          <tr key={r.id}>
+                            <td className="ds-table-id">{r.id}</td>
+                            <td className="ds-table-name">{r.name}</td>
+                            <td>{r.category}</td>
+                            <td>{r.generatedBy}</td>
+                            <td>{r.date}</td>
+                            <td>
+                              <span className={`ds-badge ${
+                                r.status === 'ready' ? 'ds-badge-ready' :
+                                r.status === 'processing' ? 'ds-badge-processing' :
+                                'ds-badge-failed'
+                              }`}>
+                                {r.status === 'ready' ? 'Sẵn sàng' :
+                                 r.status === 'processing' ? 'Đang xử lý' : 'Lỗi'}
+                              </span>
+                            </td>
+                            <td>
+                              <button className="ds-table-action-btn" aria-label="More actions">
+                                <MoreVertical size={15} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="ds-table-footer">
+                    <span className="ds-table-info">Hiển thị 1–5 / 5 báo cáo</span>
+                    <div className="ds-pagination">
+                      <button className="ds-page-btn" aria-label="Previous"><ChevronLeft size={13} /></button>
+                      <button className="ds-page-btn ds-page-btn-active">1</button>
+                      <button className="ds-page-btn" aria-label="Next"><ChevronRight size={13} /></button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right column */}
+                <div className="ds-side-widgets">
+                  {/* Top Performing Subjects */}
+                  <div className="ds-card">
+                    <div className="ds-card-header">
+                      <h3 className="ds-card-title">Môn học nổi bật</h3>
+                    </div>
+                    <div className="ds-progress-list">
+                      {topSubjects.map((s, i) => (
+                        <div key={i} className="ds-progress-item">
+                          <div className="ds-progress-row">
+                            <span className="ds-progress-label">{s.name}</span>
+                            <span className="ds-progress-pct">{s.pct}%</span>
+                          </div>
+                          <div className="ds-progress-track">
+                            <div
+                              className="ds-progress-fill"
+                              style={{
+                                width: `${s.pct}%`,
+                                background: ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'][i % 5]
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Quick Export */}
+                    <div className="ds-quick-export">
+                      <p className="ds-quick-export-title">Xuất nhanh</p>
+                      <div className="ds-quick-export-btns">
+                        <button className="ds-export-btn ds-export-pdf">
+                          <FileText size={14} />
+                          <span>PDF</span>
+                        </button>
+                        <button className="ds-export-btn ds-export-excel">
+                          <FileSpreadsheet size={14} />
+                          <span>Excel</span>
+                        </button>
+                        <button className="ds-export-btn ds-export-csv">
+                          <Database size={14} />
+                          <span>CSV</span>
+                        </button>
+                      </div>
+                      <button className="ds-generate-btn">
+                        <BarChart2 size={15} />
+                        <span>Tạo báo cáo mới</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Bottom Row: Bar chart + Insights ── */}
+              <div className="ds-bottom-row">
+                {/* Bookings by Subject bar chart */}
+                <div className="ds-card ds-bar-card">
+                  <div className="ds-card-header">
+                    <h3 className="ds-card-title">Lớp học theo Môn</h3>
+                    <button className="ds-filter-btn">
+                      <span>Tháng này</span>
+                      <ChevronDown size={11} />
+                    </button>
+                  </div>
+                  <div className="ds-bar-chart-area">
+                    <Bar
+                      data={subjectBarData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                          x: {
+                            grid: { color: '#f1f5f9' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                          },
+                          y: {
+                            grid: { display: false },
+                            ticks: { color: '#475569', font: { size: 11 } }
+                          }
+                        },
+                        plugins: {
+                          legend: { display: false },
+                          tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            padding: 10,
+                            cornerRadius: 8,
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Learner Insights */}
+                <div className="ds-card ds-insights-card">
+                  <div className="ds-card-header">
+                    <h3 className="ds-card-title">Thống kê Học viên</h3>
+                  </div>
+                  <div className="ds-insights-grid">
+                    <div className="ds-insight-item">
+                      <div className="ds-insight-icon" style={{ background: '#ede9fe' }}>
+                        <Users size={20} style={{ color: '#7c3aed' }} />
+                      </div>
+                      <div className="ds-insight-info">
+                        <span className="ds-insight-label">Học viên mới</span>
+                        <span className="ds-insight-value">{newLearners}</span>
+                        <span className="ds-insight-change ds-insight-up">↑ 12.4%</span>
+                      </div>
+                    </div>
+                    <div className="ds-insight-item">
+                      <div className="ds-insight-icon" style={{ background: '#d1fae5' }}>
+                        <RefreshCw size={20} style={{ color: '#059669' }} />
+                      </div>
+                      <div className="ds-insight-info">
+                        <span className="ds-insight-label">Gia sư hoạt động</span>
+                        <span className="ds-insight-value">{repeatLearners}</span>
+                        <span className="ds-insight-change ds-insight-up">↑ 9.1%</span>
+                      </div>
+                    </div>
+                    <div className="ds-insight-item">
+                      <div className="ds-insight-icon" style={{ background: '#d1fae5' }}>
+                        <Shield size={20} style={{ color: '#10b981' }} />
+                      </div>
+                      <div className="ds-insight-info">
+                        <span className="ds-insight-label">Gia sư đã duyệt</span>
+                        <span className="ds-insight-value">{verifiedProfiles}</span>
+                        <span className="ds-insight-change ds-insight-up">↑ 10.8%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Tab 6: Session Audit logs */}
-        {activeTab === 'session-audit' && (
-          <AttendanceLogView />
-        )}
-
-        {/* Tab 7: Community Hub */}
-        {activeTab === 'community' && (
-          <CommunityHubView />
-        )}
-      </main>
-
-      {/* MODAL 1: ADD USER */}
-      {showAddUserModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={handleAddUserSubmit} className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-slate-200 animate-fade-in-up">
-            <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800 text-base">Thêm tài khoản người dùng mới</h3>
-              <button
-                type="button"
-                onClick={() => setShowAddUserModal(false)}
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-655 cursor-pointer active:scale-95"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="p-6 flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Họ và tên</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Nguyễn Văn A..."
-                  value={userFullName}
-                  onChange={(e) => setUserFullName(e.target.value)}
-                  className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email đăng nhập</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="nguyenvana@gmail.com"
-                    value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.value)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Số điện thoại</label>
-                  <input
-                    type="tel"
-                    placeholder="0912345678"
-                    value={userPhone}
-                    onChange={(e) => setUserPhone(e.target.value)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                  />
+          {/* ════════════════════════════════════════════
+              TAB: TUTORS APPROVAL
+          ════════════════════════════════════════════ */}
+          {activeTab === 'tutors' && (
+            <div className="ds-page">
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Duyệt hồ sơ Gia sư</h1>
+                  <p className="ds-page-subtitle">Xem xét và phê duyệt hồ sơ gia sư đối tác mới.</p>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vai trò tài khoản</label>
-                  <select
-                    value={userRole}
-                    onChange={(e) => setUserRole(e.target.value as any)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800 cursor-pointer"
-                  >
-                    <option value="STUDENT">Học sinh / Phụ huynh</option>
-                    <option value="TEACHER">Gia sư đối tác</option>
-                    <option value="ADMIN">Quản trị viên hệ thống</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trạng thái hoạt động</label>
-                  <select
-                    value={userIsActive ? 'ACTIVE' : 'BLOCKED'}
-                    onChange={(e) => setUserIsActive(e.target.value === 'ACTIVE')}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800 cursor-pointer"
-                  >
-                    <option value="ACTIVE">Đang hoạt động (Kích hoạt)</option>
-                    <option value="BLOCKED">Đã khóa tài khoản</option>
-                  </select>
+              <div className="ds-card">
+                <div className="ds-table-wrap">
+                  <table className="ds-table">
+                    <thead>
+                      <tr>
+                        <th>Gia sư</th>
+                        <th>Môn dạy</th>
+                        <th>Kinh nghiệm</th>
+                        <th>Học phí đề xuất</th>
+                        <th>Trạng thái</th>
+                        <th className="text-center">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tutorsList.map((tutor) => (
+                        <tr key={tutor.id}>
+                          <td>
+                            <div className="ds-table-user">
+                              <div className="ds-table-user-avatar" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
+                                {tutor.user.fullName.charAt(0)}
+                              </div>
+                              <div>
+                                <p className="ds-table-user-name">{tutor.user.fullName}</p>
+                                <p className="ds-table-user-email">{tutor.user.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-1">
+                              {tutor.subjects.map((sub, idx) => (
+                                <span key={idx} className="ds-tag ds-tag-blue">{sub}</span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="ds-table-muted">{tutor.experience}</td>
+                          <td className="ds-table-highlight">{tutor.hourlyRate.toLocaleString('vi-VN')}đ/h</td>
+                          <td>
+                            <span className={`ds-badge ${
+                              tutor.status === 'APPROVED' ? 'ds-badge-ready' :
+                              tutor.status === 'REJECTED' ? 'ds-badge-failed' :
+                              'ds-badge-processing'
+                            }`}>
+                              {tutor.status === 'APPROVED' ? 'Đã duyệt' :
+                               tutor.status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="flex items-center justify-center gap-2">
+                              {tutor.status === 'PENDING' && (
+                                <>
+                                  <button
+                                    onClick={() => updateTutorStatus(tutor.id, 'APPROVED')}
+                                    className="ds-action-btn ds-action-btn-success"
+                                    title="Duyệt hồ sơ"
+                                  >
+                                    <Check size={14} />
+                                  </button>
+                                  <button
+                                    onClick={() => updateTutorStatus(tutor.id, 'REJECTED')}
+                                    className="ds-action-btn ds-action-btn-danger"
+                                    title="Từ chối"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
+          )}
 
-            <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowAddUserModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-505 hover:text-slate-700 transition-colors cursor-pointer bg-white border border-slate-200"
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white btn-gradient shadow-md cursor-pointer active:scale-95"
-              >
-                Tạo tài khoản
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* MODAL 2: EDIT USER */}
-      {showEditUserModal && selectedUserForEdit && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={handleEditUserSubmit} className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-slate-200 animate-fade-in-up">
-            <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800 text-base">Chỉnh sửa tài khoản người dùng</h3>
-              <button
-                type="button"
-                onClick={() => setShowEditUserModal(false)}
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-655 cursor-pointer active:scale-95"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="p-6 flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Họ và tên</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Nguyễn Văn A..."
-                  value={userFullName}
-                  onChange={(e) => setUserFullName(e.target.value)}
-                  className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email đăng nhập</label>
-                  <input
-                    type="email"
-                    disabled
-                    value={userEmail}
-                    className="bg-slate-100 border border-slate-200 text-slate-450 rounded-xl px-4 py-2.5 text-xs cursor-not-allowed outline-none"
-                  />
+          {/* ════════════════════════════════════════════
+              TAB: USERS MANAGEMENT
+          ════════════════════════════════════════════ */}
+          {activeTab === 'users' && (
+            <div className="ds-page">
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Quản lý Người dùng</h1>
+                  <p className="ds-page-subtitle">Quản lý tài khoản học viên, gia sư và quản trị viên.</p>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Số điện thoại</label>
-                  <input
-                    type="tel"
-                    placeholder="0912345678"
-                    value={userPhone}
-                    onChange={(e) => setUserPhone(e.target.value)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vai trò tài khoản</label>
-                  <select
-                    value={userRole}
-                    onChange={(e) => setUserRole(e.target.value as any)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800 cursor-pointer"
-                  >
-                    <option value="STUDENT">Học sinh / Phụ huynh</option>
-                    <option value="TEACHER">Gia sư đối tác</option>
-                    <option value="ADMIN">Quản trị viên hệ thống</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trạng thái hoạt động</label>
-                  <select
-                    value={userIsActive ? 'ACTIVE' : 'BLOCKED'}
-                    onChange={(e) => setUserIsActive(e.target.value === 'ACTIVE')}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800 cursor-pointer"
-                  >
-                    <option value="ACTIVE">Đang hoạt động (Kích hoạt)</option>
-                    <option value="BLOCKED">Đã khóa tài khoản</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowEditUserModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-505 hover:text-slate-700 transition-colors cursor-pointer bg-white border border-slate-200"
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white btn-gradient shadow-md cursor-pointer active:scale-95"
-              >
-                Lưu chỉnh sửa
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* MODAL 3: EDIT CLASS REQUEST */}
-      {showEditRequestModal && selectedRequestForEdit && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={handleEditRequestSubmit} className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-slate-200 animate-fade-in-up">
-            <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800 text-base">Chỉnh sửa tin yêu cầu lớp học</h3>
-              <button
-                type="button"
-                onClick={() => setShowEditRequestModal(false)}
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-655 cursor-pointer active:scale-95"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="p-6 flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tiêu đề lớp</label>
-                <input
-                  type="text"
-                  required
-                  value={reqTitle}
-                  onChange={(e) => setReqTitle(e.target.value)}
-                  className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Môn học</label>
-                  <input
-                    type="text"
-                    required
-                    value={reqSubject}
-                    onChange={(e) => setReqSubject(e.target.value)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lớp/Trình độ</label>
-                  <input
-                    type="text"
-                    required
-                    value={reqGrade}
-                    onChange={(e) => setReqGrade(e.target.value)}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Học phí (đ/h)</label>
-                  <input
-                    type="number"
-                    required
-                    value={reqRate}
-                    onChange={(e) => setReqRate(Number(e.target.value))}
-                    className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trạng thái lớp</label>
-                <select
-                  value={reqStatus}
-                  onChange={(e) => setReqStatus(e.target.value as any)}
-                  className="input-premium rounded-xl px-4 py-2.5 text-xs text-slate-800 cursor-pointer"
+                <button
+                  onClick={() => { setUserFullName(''); setUserEmail(''); setUserPhone(''); setUserRole('STUDENT'); setUserIsActive(true); setShowAddUserModal(true); }}
+                  className="ds-btn-primary"
                 >
-                  <option value="OPEN">Đang tìm Gia sư (OPEN)</option>
-                  <option value="ASSIGNED">Đã giao lớp (ASSIGNED)</option>
-                  <option value="COMPLETED">Đã kết thúc lớp (COMPLETED)</option>
-                  <option value="CANCELLED">Hủy bỏ lớp học (CANCELLED)</option>
-                </select>
+                  <UserPlus size={15} />
+                  <span>Thêm tài khoản</span>
+                </button>
+              </div>
+              <div className="ds-card">
+                <div className="ds-table-wrap">
+                  <table className="ds-table">
+                    <thead>
+                      <tr>
+                        <th>Người dùng</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th className="text-center">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {usersList.map((userItem) => (
+                        <tr key={userItem.id}>
+                          <td>
+                            <div className="ds-table-user">
+                              <div className="ds-table-user-avatar" style={{
+                                background: userItem.role === 'ADMIN' ? '#fee2e2' : userItem.role === 'TEACHER' ? '#e0e7ff' : '#d1fae5',
+                                color: userItem.role === 'ADMIN' ? '#dc2626' : userItem.role === 'TEACHER' ? '#4f46e5' : '#059669',
+                              }}>
+                                {userItem.fullName.charAt(0)}
+                              </div>
+                              <span className="ds-table-user-name">{userItem.fullName}</span>
+                            </div>
+                          </td>
+                          <td className="ds-table-muted">{userItem.email}</td>
+                          <td className="ds-table-muted">{userItem.phone || 'Chưa cập nhật'}</td>
+                          <td>
+                            <span className={`ds-tag ${
+                              userItem.role === 'ADMIN' ? 'ds-tag-red' :
+                              userItem.role === 'TEACHER' ? 'ds-tag-blue' : 'ds-tag-green'
+                            }`}>
+                              {userItem.role === 'ADMIN' ? 'Quản trị' : userItem.role === 'TEACHER' ? 'Gia sư' : 'Học sinh'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`ds-badge ${userItem.isActive ? 'ds-badge-ready' : 'ds-badge-failed'}`}>
+                              {userItem.isActive ? 'Hoạt động' : 'Đã khóa'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="flex items-center justify-center gap-2">
+                              <button onClick={() => handleEditUserClick(userItem)} className="ds-action-btn ds-action-btn-default" title="Sửa">
+                                <Edit3 size={13} />
+                              </button>
+                              {userItem.role !== 'ADMIN' && (
+                                <button
+                                  onClick={() => toggleUserStatus(userItem.id)}
+                                  className={`ds-action-btn ${userItem.isActive ? 'ds-action-btn-danger' : 'ds-action-btn-success'}`}
+                                  title={userItem.isActive ? 'Khóa' : 'Mở khóa'}
+                                >
+                                  {userItem.isActive ? <ShieldAlert size={13} /> : <Shield size={13} />}
+                                </button>
+                              )}
+                              {userItem.id.startsWith('u-custom-') && (
+                                <button onClick={() => handleDeleteUser(userItem.id)} className="ds-action-btn ds-action-btn-danger" title="Xóa">
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
+          )}
 
-            <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowEditRequestModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-505 hover:text-slate-700 transition-colors cursor-pointer bg-white border border-slate-200"
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white btn-gradient shadow-md cursor-pointer active:scale-95"
-              >
-                Lưu thay đổi
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* MODAL 4: ASSIGN TUTOR MANUALLY */}
-      {showAssignTutorModal && selectedRequestForAssign && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={handleAssignTutorSubmit} className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-slate-200 animate-fade-in-up">
-            <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800 text-base">Giao lớp nhanh cho gia sư đối tác</h3>
-              <button
-                type="button"
-                onClick={() => setShowAssignTutorModal(false)}
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-655 cursor-pointer active:scale-95"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="p-6 flex flex-col gap-4">
-              <div className="text-xs bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-indigo-700 font-semibold leading-relaxed">
-                Lớp: <strong className="text-slate-805">{selectedRequestForAssign.title}</strong>
-                <br />
-                Môn học: {selectedRequestForAssign.subject} ({selectedRequestForAssign.grade})
-                <br />
-                Phụ huynh/Học viên đăng: {selectedRequestForAssign.student.user.fullName}
+          {/* ════════════════════════════════════════════
+              TAB: CLASS REQUESTS
+          ════════════════════════════════════════════ */}
+          {activeTab === 'requests' && (
+            <div className="ds-page">
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Quản lý yêu cầu lớp học</h1>
+                  <p className="ds-page-subtitle">Xem xét, phân công gia sư cho các yêu cầu tìm lớp.</p>
+                </div>
               </div>
+              <div className="ds-card">
+                <div className="ds-table-wrap">
+                  <table className="ds-table">
+                    <thead>
+                      <tr>
+                        <th>Lớp yêu cầu</th>
+                        <th>Học sinh đăng</th>
+                        <th>Môn học</th>
+                        <th>Học phí</th>
+                        <th>Gia sư chỉ định</th>
+                        <th>Trạng thái</th>
+                        <th className="text-center">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {requestsList.map((request) => (
+                        <tr key={request.id}>
+                          <td className="ds-table-name">{request.title}</td>
+                          <td className="ds-table-muted">{request.student.user.fullName}</td>
+                          <td>
+                            <span className="ds-tag ds-tag-blue">{request.subject}</span>
+                            <span className="ds-table-muted ml-1">{request.grade}</span>
+                          </td>
+                          <td className="ds-table-highlight">{request.hourlyRate.toLocaleString('vi-VN')}đ/h</td>
+                          <td className="ds-table-highlight" style={{ color: '#6366f1' }}>{request.tutorName || 'Chưa giao lớp'}</td>
+                          <td>
+                            <span className={`ds-badge ${
+                              request.status === 'OPEN' ? 'ds-badge-processing' :
+                              request.status === 'ASSIGNED' ? 'ds-badge-info' :
+                              request.status === 'COMPLETED' ? 'ds-badge-ready' : 'ds-badge-failed'
+                            }`}>
+                              {request.status === 'OPEN' ? 'Đang tuyển' :
+                               request.status === 'ASSIGNED' ? 'Đã giao' :
+                               request.status === 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="flex items-center justify-center gap-2">
+                              <button onClick={() => handleEditRequestClick(request)} className="ds-action-btn ds-action-btn-default" title="Sửa">
+                                <Edit3 size={13} />
+                              </button>
+                              {request.status === 'OPEN' && (
+                                <button onClick={() => handleAssignTutorClick(request)} className="ds-action-btn ds-action-btn-primary" title="Giao lớp">
+                                  <GraduationCap size={13} />
+                                </button>
+                              )}
+                              <button onClick={() => handleDeleteRequest(request.id)} className="ds-action-btn ds-action-btn-danger" title="Xóa">
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Chọn gia sư đối tác</label>
-                <select
-                  required
-                  value={reqTutorId}
-                  onChange={(e) => setReqTutorId(e.target.value)}
-                  className="input-premium rounded-xl px-4 py-3 text-slate-805 text-xs sm:text-sm cursor-pointer"
-                >
-                  <option value="">-- Chọn một gia sư được duyệt --</option>
-                  {tutorsList
-                    .filter(t => t.status === 'APPROVED')
-                    .map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.user.fullName} ({t.subjects.join(', ')} - Exp: {t.experience.substring(0, 30)}...)
-                      </option>
+          {/* ════════════════════════════════════════════
+              TAB: CHATBOT CONFIG
+          ════════════════════════════════════════════ */}
+          {activeTab === 'chatbot-config' && (
+            <div className="ds-page">
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Cấu hình AI Chatbot</h1>
+                  <p className="ds-page-subtitle">Tùy chỉnh hành vi và câu lệnh hệ thống cho trợ lý AI.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 ds-card">
+                  <div className="ds-card-header">
+                    <h3 className="ds-card-title flex items-center gap-2">
+                      <Cpu size={16} className="text-indigo-500" />
+                      Câu lệnh hệ thống (System Prompt)
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-medium mb-4">
+                      💡 Câu lệnh này chỉ thị AI về vai trò, giọng điệu và quy tắc hội thoại.
+                    </div>
+                    <form onSubmit={handleSaveChatbotPrompt} className="flex flex-col gap-4">
+                      <textarea
+                        rows={8}
+                        value={chatbotPrompt}
+                        onChange={(e) => setChatbotPrompt(e.target.value)}
+                        placeholder="Nhập hướng dẫn cho chatbot..."
+                        className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-700 text-sm font-medium leading-relaxed resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                      />
+                      <button type="submit" className="ds-btn-primary">
+                        <Check size={15} />
+                        <span>Cập nhật chỉ thị Chatbot AI</span>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-5">
+                  <div className="ds-card p-5">
+                    <h4 className="ds-card-title mb-4">Hiệu suất Trợ lý AI</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Tổng hội thoại</span>
+                        <strong className="text-base font-black text-slate-700 block mt-1">142 lượt</strong>
+                      </div>
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Độ chính xác</span>
+                        <strong className="text-base font-black text-emerald-600 block mt-1">98.5%</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="ds-card p-5 flex flex-col gap-3 max-h-[300px] overflow-y-auto">
+                    <h4 className="ds-card-title flex items-center gap-1.5">
+                      <Activity size={14} className="text-indigo-500 animate-pulse" />
+                      Nhật ký gần đây
+                    </h4>
+                    {[
+                      { user: 'Tuệ Vương', msg: 'Hôm nay tôi có lịch học Toán 12 không?', reply: 'Hôm nay bạn có buổi học Toán lúc 19:00 cùng gia sư Trần Thị Lan.' },
+                      { user: 'Lê Hoàng Nam', msg: 'Làm thế nào để được duyệt hồ sơ dạy nhanh?', reply: 'Vui lòng cập nhật đầy đủ bằng cấp và kinh nghiệm trong mục Hồ sơ.' },
+                      { user: 'Cao Vũ Băng Truyền', msg: 'Xem thông tin lớp tôi dạy?', reply: 'Bạn hiện có lớp Tiếng Anh lớp 9 với học sinh Hoàng Mai Chi.' }
+                    ].map((log, idx) => (
+                      <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs">
+                        <div className="flex justify-between mb-1">
+                          <strong className="text-slate-700">{log.user}</strong>
+                          <span className="text-slate-400">Vừa xong</span>
+                        </div>
+                        <p className="text-slate-500 italic mb-1">"{log.msg}"</p>
+                        <p className="text-indigo-600 font-medium">→ {log.reply}</p>
+                      </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════
+              TAB: SESSION AUDIT
+          ════════════════════════════════════════════ */}
+          {activeTab === 'session-audit' && (
+            <div className="ds-page">
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Giám sát Buổi học</h1>
+                  <p className="ds-page-subtitle">Theo dõi điểm danh và nhật ký buổi dạy của gia sư.</p>
+                </div>
+              </div>
+              <AttendanceLogView />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════
+              TAB: COMMUNITY
+          ════════════════════════════════════════════ */}
+          {activeTab === 'community' && (
+            <div className="ds-page">
+              <div className="ds-page-header">
+                <div>
+                  <h1 className="ds-page-title">Cộng đồng & Hỏi đáp</h1>
+                  <p className="ds-page-subtitle">Quản lý diễn đàn, câu hỏi và bài đăng của cộng đồng.</p>
+                </div>
+              </div>
+              <CommunityHubView />
+            </div>
+          )}
+
+        </main>
+      </div>
+
+      {/* ════ MODALS ════ */}
+
+      {/* MODAL: ADD USER */}
+      {showAddUserModal && (
+        <div className="ds-modal-overlay">
+          <form onSubmit={handleAddUserSubmit} className="ds-modal">
+            <div className="ds-modal-header">
+              <h3 className="ds-modal-title">Thêm tài khoản người dùng mới</h3>
+              <button type="button" onClick={() => setShowAddUserModal(false)} className="ds-modal-close"><X size={15} /></button>
+            </div>
+            <div className="ds-modal-body">
+              <div className="ds-form-group">
+                <label className="ds-label">Họ và tên</label>
+                <input type="text" required placeholder="Nguyễn Văn A..." value={userFullName} onChange={e => setUserFullName(e.target.value)} className="ds-input" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="ds-form-group">
+                  <label className="ds-label">Email</label>
+                  <input type="email" required placeholder="email@gmail.com" value={userEmail} onChange={e => setUserEmail(e.target.value)} className="ds-input" />
+                </div>
+                <div className="ds-form-group">
+                  <label className="ds-label">Số điện thoại</label>
+                  <input type="tel" placeholder="0912345678" value={userPhone} onChange={e => setUserPhone(e.target.value)} className="ds-input" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="ds-form-group">
+                  <label className="ds-label">Vai trò</label>
+                  <select value={userRole} onChange={e => setUserRole(e.target.value as any)} className="ds-input">
+                    <option value="STUDENT">Học sinh / Phụ huynh</option>
+                    <option value="TEACHER">Gia sư đối tác</option>
+                    <option value="ADMIN">Quản trị viên</option>
+                  </select>
+                </div>
+                <div className="ds-form-group">
+                  <label className="ds-label">Trạng thái</label>
+                  <select value={userIsActive ? 'ACTIVE' : 'BLOCKED'} onChange={e => setUserIsActive(e.target.value === 'ACTIVE')} className="ds-input">
+                    <option value="ACTIVE">Đang hoạt động</option>
+                    <option value="BLOCKED">Đã khóa</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="ds-modal-footer">
+              <button type="button" onClick={() => setShowAddUserModal(false)} className="ds-btn-secondary">Hủy</button>
+              <button type="submit" className="ds-btn-primary">Tạo tài khoản</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL: EDIT USER */}
+      {showEditUserModal && selectedUserForEdit && (
+        <div className="ds-modal-overlay">
+          <form onSubmit={handleEditUserSubmit} className="ds-modal">
+            <div className="ds-modal-header">
+              <h3 className="ds-modal-title">Chỉnh sửa tài khoản</h3>
+              <button type="button" onClick={() => setShowEditUserModal(false)} className="ds-modal-close"><X size={15} /></button>
+            </div>
+            <div className="ds-modal-body">
+              <div className="ds-form-group">
+                <label className="ds-label">Họ và tên</label>
+                <input type="text" required value={userFullName} onChange={e => setUserFullName(e.target.value)} className="ds-input" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="ds-form-group">
+                  <label className="ds-label">Email</label>
+                  <input type="email" disabled value={userEmail} className="ds-input opacity-60 cursor-not-allowed" />
+                </div>
+                <div className="ds-form-group">
+                  <label className="ds-label">Số điện thoại</label>
+                  <input type="tel" value={userPhone} onChange={e => setUserPhone(e.target.value)} className="ds-input" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="ds-form-group">
+                  <label className="ds-label">Vai trò</label>
+                  <select value={userRole} onChange={e => setUserRole(e.target.value as any)} className="ds-input">
+                    <option value="STUDENT">Học sinh / Phụ huynh</option>
+                    <option value="TEACHER">Gia sư đối tác</option>
+                    <option value="ADMIN">Quản trị viên</option>
+                  </select>
+                </div>
+                <div className="ds-form-group">
+                  <label className="ds-label">Trạng thái</label>
+                  <select value={userIsActive ? 'ACTIVE' : 'BLOCKED'} onChange={e => setUserIsActive(e.target.value === 'ACTIVE')} className="ds-input">
+                    <option value="ACTIVE">Đang hoạt động</option>
+                    <option value="BLOCKED">Đã khóa</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="ds-modal-footer">
+              <button type="button" onClick={() => setShowEditUserModal(false)} className="ds-btn-secondary">Hủy</button>
+              <button type="submit" className="ds-btn-primary">Lưu chỉnh sửa</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL: EDIT CLASS REQUEST */}
+      {showEditRequestModal && selectedRequestForEdit && (
+        <div className="ds-modal-overlay">
+          <form onSubmit={handleEditRequestSubmit} className="ds-modal">
+            <div className="ds-modal-header">
+              <h3 className="ds-modal-title">Chỉnh sửa tin yêu cầu lớp</h3>
+              <button type="button" onClick={() => setShowEditRequestModal(false)} className="ds-modal-close"><X size={15} /></button>
+            </div>
+            <div className="ds-modal-body">
+              <div className="ds-form-group">
+                <label className="ds-label">Tiêu đề lớp</label>
+                <input type="text" required value={reqTitle} onChange={e => setReqTitle(e.target.value)} className="ds-input" />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="ds-form-group">
+                  <label className="ds-label">Môn học</label>
+                  <input type="text" required value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="ds-input" />
+                </div>
+                <div className="ds-form-group">
+                  <label className="ds-label">Lớp / Trình độ</label>
+                  <input type="text" required value={reqGrade} onChange={e => setReqGrade(e.target.value)} className="ds-input" />
+                </div>
+                <div className="ds-form-group">
+                  <label className="ds-label">Học phí (đ/h)</label>
+                  <input type="number" required value={reqRate} onChange={e => setReqRate(Number(e.target.value))} className="ds-input" />
+                </div>
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-label">Trạng thái lớp</label>
+                <select value={reqStatus} onChange={e => setReqStatus(e.target.value as any)} className="ds-input">
+                  <option value="OPEN">Đang tìm Gia sư</option>
+                  <option value="ASSIGNED">Đã giao lớp</option>
+                  <option value="COMPLETED">Đã kết thúc</option>
+                  <option value="CANCELLED">Hủy bỏ</option>
                 </select>
               </div>
             </div>
+            <div className="ds-modal-footer">
+              <button type="button" onClick={() => setShowEditRequestModal(false)} className="ds-btn-secondary">Hủy</button>
+              <button type="submit" className="ds-btn-primary">Lưu thay đổi</button>
+            </div>
+          </form>
+        </div>
+      )}
 
-            <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowAssignTutorModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-505 hover:text-slate-700 transition-colors cursor-pointer bg-white border border-slate-200"
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                disabled={!reqTutorId}
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white btn-gradient shadow-md cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Xác nhận chỉ định
-              </button>
+      {/* MODAL: ASSIGN TUTOR */}
+      {showAssignTutorModal && selectedRequestForAssign && (
+        <div className="ds-modal-overlay">
+          <form onSubmit={handleAssignTutorSubmit} className="ds-modal">
+            <div className="ds-modal-header">
+              <h3 className="ds-modal-title">Giao lớp cho gia sư</h3>
+              <button type="button" onClick={() => setShowAssignTutorModal(false)} className="ds-modal-close"><X size={15} /></button>
+            </div>
+            <div className="ds-modal-body">
+              <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-700 text-xs font-medium leading-relaxed mb-2">
+                Lớp: <strong>{selectedRequestForAssign.title}</strong><br />
+                Môn: {selectedRequestForAssign.subject} ({selectedRequestForAssign.grade})<br />
+                Học sinh: {selectedRequestForAssign.student.user.fullName}
+              </div>
+              <div className="ds-form-group">
+                <label className="ds-label">Chọn gia sư đối tác</label>
+                <select required value={reqTutorId} onChange={e => setReqTutorId(e.target.value)} className="ds-input">
+                  <option value="">-- Chọn một gia sư được duyệt --</option>
+                  {tutorsList.filter(t => t.status === 'APPROVED').map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.user.fullName} ({t.subjects.join(', ')})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="ds-modal-footer">
+              <button type="button" onClick={() => setShowAssignTutorModal(false)} className="ds-btn-secondary">Hủy</button>
+              <button type="submit" disabled={!reqTutorId} className="ds-btn-primary disabled:opacity-50 disabled:cursor-not-allowed">Xác nhận chỉ định</button>
             </div>
           </form>
         </div>
