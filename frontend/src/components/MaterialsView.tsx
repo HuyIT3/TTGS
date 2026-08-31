@@ -36,6 +36,69 @@ interface Chapter {
   lessons: Lesson[];
 }
 
+const dbName = 'ttgs_materials_db';
+const storeName = 'files';
+
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(dbName, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveFileToIndexedDB(key: string, fileBlob: Blob): Promise<void> {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(storeName, 'readwrite');
+    const store = transaction.objectStore(storeName);
+    store.put(fileBlob, key);
+    return new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } catch (err) {
+    console.error('Failed to save file to IndexedDB', err);
+  }
+}
+
+async function getFileFromIndexedDB(key: string): Promise<Blob | null> {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(storeName, 'readonly');
+    const store = transaction.objectStore(storeName);
+    const request = store.get(key);
+    return new Promise<Blob | null>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.error('Failed to get file from IndexedDB', err);
+    return null;
+  }
+}
+
+async function deleteFileFromIndexedDB(key: string): Promise<void> {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(storeName, 'readwrite');
+    const store = transaction.objectStore(storeName);
+    store.delete(key);
+    return new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } catch (err) {
+    console.error('Failed to delete file from IndexedDB', err);
+  }
+}
+
 const defaultExamsSeed = [
   {
     id: 'exam-1',
@@ -206,8 +269,25 @@ export default function MaterialsView() {
   const [examFileUrl, setExamFileUrl] = useState('');
   const [uploaderError, setUploaderError] = useState<string | null>(null);
 
-  const handleDownloadFile = (fileName: string, fileUrl?: string) => {
-    if (fileUrl) {
+  const handleDownloadFile = async (fileName: string, fileUrl?: string) => {
+    try {
+      const savedBlob = await getFileFromIndexedDB(fileName);
+      if (savedBlob) {
+        const url = URL.createObjectURL(savedBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        return;
+      }
+    } catch (e) {
+      console.error('Error loading file from IndexedDB, falling back to url/mock', e);
+    }
+
+    if (fileUrl && !fileUrl.startsWith('blob:')) {
       const link = document.createElement('a');
       link.href = fileUrl;
       link.download = fileName;
@@ -433,6 +513,8 @@ export default function MaterialsView() {
   const handleDeleteFile = (fileName: string) => {
     if (!activeSubject || !activeGradeLevel || !activeChapterId || !activeLessonId || !window.confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) return;
 
+    deleteFileFromIndexedDB(fileName);
+
     setMaterials(prev => {
       const subjectGrades = prev[activeSubject] || {};
       const chapters = subjectGrades[activeGradeLevel] || [];
@@ -514,6 +596,10 @@ export default function MaterialsView() {
       }
       localStorage.setItem('ttgs_mock_exams', JSON.stringify(examsList));
 
+      if (tempFileForConfig.rawFile) {
+        saveFileToIndexedDB(configAnswerKeyName || (configExamTitle.trim() + ' - Hướng dẫn giải chi tiết.pdf'), tempFileForConfig.rawFile);
+      }
+
       alert('Đăng đề thi thử thành công và đã xuất bản lên Phòng thi!');
       setShowConfigModal(false);
       setTempFileForConfig(null);
@@ -533,6 +619,10 @@ export default function MaterialsView() {
         fileUrl: tempFileForConfig.fileUrl,
         answerKeyName: configAnswerKeyName || (configExamTitle + ' - Hướng dẫn giải chi tiết.pdf')
       };
+
+      if (tempFileForConfig.rawFile) {
+        saveFileToIndexedDB(newFile.name, tempFileForConfig.rawFile);
+      }
 
       setMaterials(prev => {
         const subjectGrades = prev[activeSubject] || {};
@@ -1491,7 +1581,7 @@ export default function MaterialsView() {
                                         setConfigNumTF(4);
                                         setConfigNumShort(6);
                                         handleGenerateConfigQuestions(12, 4, 6);
-                                        setTempFileForConfig({ name: file.name, size: fileSizeStr, fileUrl: url });
+                                        setTempFileForConfig({ name: file.name, size: fileSizeStr, fileUrl: url, rawFile: file });
                                         setConfigExamTitle(file.name.replace(/\.[^/.]+$/, ""));
                                         setConfigAnswerKeyName(file.name.replace(/\.[^/.]+$/, "") + ' - Hướng dẫn giải chi tiết.pdf');
                                         setConfigDuration(45);
@@ -1526,6 +1616,8 @@ export default function MaterialsView() {
                                           uploadedBy: user ? user.fullName : 'Gia sư',
                                           fileUrl: url
                                         };
+
+                                        saveFileToIndexedDB(file.name, file);
 
                                         setMaterials(prev => {
                                           const subjectGrades = prev[activeSubject!] || {};
@@ -1848,7 +1940,7 @@ export default function MaterialsView() {
                           if (e.target.files && e.target.files[0]) {
                             const file = e.target.files[0];
                             const url = URL.createObjectURL(file);
-                            setTempFileForConfig((prev: any) => prev ? { ...prev, fileUrl: url } : null);
+                            setTempFileForConfig((prev: any) => prev ? { ...prev, fileUrl: url, rawFile: file } : null);
                           }
                         }}
                         className="hidden"
@@ -1878,7 +1970,7 @@ export default function MaterialsView() {
                             if (e.target.files && e.target.files[0]) {
                               const file = e.target.files[0];
                               const url = URL.createObjectURL(file);
-                              setTempFileForConfig((prev: any) => prev ? { ...prev, fileUrl: url } : null);
+                              setTempFileForConfig((prev: any) => prev ? { ...prev, fileUrl: url, rawFile: file } : null);
                             }
                           }}
                           className="hidden"
