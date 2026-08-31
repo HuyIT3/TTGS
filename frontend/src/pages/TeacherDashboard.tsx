@@ -130,7 +130,7 @@ export const TeacherDashboard: React.FC = () => {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileMessage(null);
-    const subjects = subjectsText.split(',').map(s => s.trim()).filter(Boolean);
+    const subjects = subjectsText.split(',').map((s: string) => s.trim()).filter(Boolean);
     try {
       const res = await fetch(`${apiUrl}/users/tutor-profile`, {
         method: 'PATCH',
