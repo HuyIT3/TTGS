@@ -99,6 +99,55 @@ async function deleteFileFromIndexedDB(key: string): Promise<void> {
   }
 }
 
+function generateMockPDF(fileName: string): Blob {
+  const title = fileName.replace(/[^a-zA-Z0-9 -]/g, ''); // keep it simple ascii
+  const streamContent = `BT
+/F1 16 Tf
+50 750 Td
+(Tai lieu: ${title}) Tj
+/F1 12 Tf
+0 -40 Td
+(He thong ket noi Gia su va Hoc sinh Hoa Huong Duong.) Tj
+0 -20 Td
+(Day la tai lieu mo phong phuc vu viec xem truoc.) Tj
+ET`;
+
+  const pdfContent = `%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 595 842] /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length ${streamContent.length} >>
+stream
+${streamContent}
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000060 00000 n 
+0000000117 00000 n 
+0000000227 00000 n 
+0000000302 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+472
+%%EOF`;
+
+  return new Blob([pdfContent], { type: 'application/pdf' });
+}
+
 const defaultExamsSeed = [
   {
     id: 'exam-1',
@@ -295,8 +344,7 @@ export default function MaterialsView() {
       link.click();
       document.body.removeChild(link);
     } else {
-      const mockText = `Tài liệu ôn tập: ${fileName}\nHệ thống kết nối Gia sư và Học sinh Hoa Hướng Dương.\nĐây là tài liệu được tạo giả lập phục vụ việc luyện đề và xem trước bài học.`;
-      const blob = new Blob([mockText], { type: 'text/plain;charset=utf-8' });
+      const blob = generateMockPDF(fileName);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
