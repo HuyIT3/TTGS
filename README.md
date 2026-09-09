@@ -10,7 +10,6 @@
 
 🌐 **Live Demo:** [https://giasuhoanghuy.netlify.app](https://giasuhoanghuy.netlify.app)  
 👨‍💻 **Developer Portfolio:** [https://duhoanghuy.netlify.app](https://duhoanghuy.netlify.app)
-
 📦 **Repository:** [https://github.com/HuyIT3/TTGS](https://github.com/HuyIT3/TTGS)
 
 ---
