@@ -871,13 +871,33 @@ export default function MaterialsView() {
                 </div>
 
                 {activeExam.fileUrl ? (
-                  <div className="flex-1 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative min-h-[550px] shadow-inner">
-                    <iframe
-                      src={activeExam.fileUrl}
-                      className="w-full h-full border-0 min-h-[550px]"
-                      title="Nội dung đề thi PDF"
-                    />
-                  </div>
+                  activeExam.name?.toLowerCase().endsWith('.docx') || activeExam.name?.toLowerCase().endsWith('.doc') ? (
+                    <div className="flex-1 bg-blue-50/50 rounded-2xl p-8 border border-blue-200 flex flex-col items-center justify-center text-center gap-4 min-h-[400px]">
+                      <div className="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-600">
+                        <FileText size={36} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-slate-800">{activeExam.name}</h3>
+                        <p className="text-xs text-slate-500 mt-1">Tài liệu Microsoft Word ({activeExam.size})</p>
+                      </div>
+                      <a
+                        href={activeExam.fileUrl}
+                        download={activeExam.name}
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all cursor-pointer"
+                      >
+                        <Download size={14} />
+                        <span>Tải tệp Word về máy</span>
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="flex-1 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative min-h-[550px] shadow-inner">
+                      <iframe
+                        src={activeExam.fileUrl}
+                        className="w-full h-full border-0 min-h-[550px]"
+                        title="Nội dung đề thi PDF"
+                      />
+                    </div>
+                  )
                 ) : (
                   <div className="flex-1 bg-white border border-slate-200 rounded-2xl p-6 md:p-8 flex flex-col gap-6 overflow-y-auto max-h-[600px] shadow-sm select-none">
                     <div className="text-center border-b border-dashed border-slate-200 pb-4">

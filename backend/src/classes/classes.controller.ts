@@ -111,6 +111,14 @@ export class ClassesController {
     @UploadedFile() file: any,
     @Body('subject') subject: string,
   ) {
-    return this.classesService.generateTestFromPdf(file.buffer, subject);
+    if (!file) {
+      return [];
+    }
+    return this.classesService.generateTestFromFile(
+      file.buffer,
+      subject,
+      file.originalname || '',
+      file.mimetype || ''
+    );
   }
 }

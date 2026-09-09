@@ -1,0 +1,93 @@
+name: TTGS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ==================== JOB 1: BACKEND CI ====================
+  backend-ci:
+    name: Backend CI (NestJS, Prisma, Jest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: 🗄️ Generate Prisma Client
+        working-directory: ./backend
+        run: npx prisma generate
+
+      - name: 🧪 Run Unit Tests
+        working-directory: ./backend
+        run: npm test
+
+      - name: 🏗️ Build Backend Application
+        working-directory: ./backend
+        run: npm run build
+
+  # ==================== JOB 2: FRONTEND CI ====================
+  frontend-ci:
+    name: Frontend CI (React 18, TypeScript, Vite)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: 🏗️ Type Check & Build Frontend Bundle
+        working-directory: ./frontend
+        run: npm run build
+
+  # ==================== JOB 3: DOCKER BUILD VALIDATION ====================
+  docker-validation:
+    name: Docker Containerization Check
+    needs: [backend-ci, frontend-ci]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🛠️ Build Backend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          tags: ttgs-backend:test
+
+      - name: 🛠️ Build Frontend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          tags: ttgs-frontend:test

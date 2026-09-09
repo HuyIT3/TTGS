@@ -76,6 +76,55 @@ export const Login: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const handleQuickLogin = (targetRole: 'STUDENT' | 'TEACHER' | 'ADMIN') => {
+    setError(null);
+    if (targetRole === 'ADMIN') {
+      const mockAdmin = {
+        id: 'mock-admin-id',
+        email: 'admin@huyhoang.com',
+        fullName: 'Ban Quản Trị TTGS',
+        phone: '0901234567',
+        role: 'ADMIN',
+      };
+      login(mockAdmin as any, 'mock-admin-token');
+      navigate('/admin');
+    } else if (targetRole === 'TEACHER') {
+      const mockTutor = {
+        id: 'mock-tutor-id',
+        email: 'tutor1@huyhoang.com',
+        fullName: 'Nguyễn Văn Hùng',
+        phone: '0912345678',
+        role: 'TEACHER',
+        tutorProfile: {
+          id: 'mock-tutor-profile-id',
+          subjects: ['Toán học', 'Vật lý'],
+          bio: 'Cựu sinh viên Đại học Bách Khoa Hà Nội...',
+          experience: '5 năm kinh nghiệm gia sư cấp 3',
+          hourlyRate: 200000,
+          status: 'APPROVED',
+        }
+      };
+      login(mockTutor as any, 'mock-token');
+      navigate('/teacher');
+    } else {
+      const mockStudent = {
+        id: 'mock-student-id',
+        email: 'student1@huyhoang.com',
+        fullName: 'Tuệ Vương',
+        phone: '0945678901',
+        role: 'STUDENT',
+        studentProfile: {
+          id: 'mock-student-profile-id',
+          grade: 'Lớp 12',
+          school: 'THPT Chu Văn An',
+          address: 'Số 10 Tây Hồ, Hà Nội',
+        }
+      };
+      login(mockStudent as any, 'mock-token');
+      navigate('/student');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -118,6 +167,18 @@ export const Login: React.FC = () => {
         };
         login(mockUser as any, 'mock-token');
         navigate('/student');
+        return;
+      }
+      if (email === 'admin@huyhoang.com' && password === '123456') {
+        const mockUser = {
+          id: 'mock-admin-id',
+          email: 'admin@huyhoang.com',
+          fullName: 'Ban Quản Trị TTGS',
+          phone: '0901234567',
+          role: 'ADMIN',
+        };
+        login(mockUser as any, 'mock-admin-token');
+        navigate('/admin');
         return;
       }
 
@@ -263,13 +324,47 @@ export const Login: React.FC = () => {
             </p>
           </div>
 
-          {/* Error */}
-          {error && (
-            <div className="mb-5 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 animate-shake">
-              <AlertCircle size={16} className="text-rose-400 shrink-0" />
-              <span className="text-rose-300 text-sm font-medium">{error}</span>
+          {/* Quick Demo Login Cards for Recruiters / Reviewers */}
+          <div className="mb-6 p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 shadow-inner">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5 font-mono">
+                <Sparkles size={13} className="text-cyan-400" />
+                ⚡ TRẢI NGHIỆM NHANH (DEMO 1-CLICK)
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">Dành cho Nhà tuyển dụng</span>
             </div>
-          )}
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('STUDENT')}
+                className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 flex flex-col items-center gap-1 text-center transition-all cursor-pointer group active:scale-95 shadow-sm"
+              >
+                <span className="text-base group-hover:scale-110 transition-transform">👨‍🎓</span>
+                <span className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">Học Sinh</span>
+                <span className="text-[9px] text-slate-400">Xem lớp & thi</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('TEACHER')}
+                className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 flex flex-col items-center gap-1 text-center transition-all cursor-pointer group active:scale-95 shadow-sm"
+              >
+                <span className="text-base group-hover:scale-110 transition-transform">👩‍🏫</span>
+                <span className="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">Gia Sư</span>
+                <span className="text-[9px] text-slate-400">Nhận lớp & lương</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('ADMIN')}
+                className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 flex flex-col items-center gap-1 text-center transition-all cursor-pointer group active:scale-95 shadow-sm"
+              >
+                <span className="text-base group-hover:scale-110 transition-transform">🛡️</span>
+                <span className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">Admin</span>
+                <span className="text-[9px] text-slate-400">Quản trị hệ thống</span>
+              </button>
+            </div>
+          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">

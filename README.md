@@ -1,6 +1,7 @@
 # 🎓 TTGS - Tutor Finding & Classroom Management Platform
 > **A modern, full-stack ed-tech platform connecting tutors and students with automated matching, online exam rooms, salary tracking, and real-time notifications.**
 
+[![CI/CD Pipeline](https://github.com/HuyIT3/TTGS/actions/workflows/ci.yml/badge.svg)](https://github.com/HuyIT3/TTGS/actions)
 [![NestJS](https://img.shields.io/badge/Backend-NestJS%2010-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -9,6 +10,7 @@
 [![Docker](https://img.shields.io/badge/Deploy-Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 🌐 **Live Demo:** [https://giasuhoanghuy.netlify.app](https://giasuhoanghuy.netlify.app)  
+🌟 **Developer Portfolio:** [https://duhoanghuy.netlify.app](https://duhoanghuy.netlify.app) *(or [https://HuyIT3.github.io](https://HuyIT3.github.io))*  
 📦 **Repository:** [https://github.com/HuyIT3/TTGS](https://github.com/HuyIT3/TTGS)
 
 ---
@@ -87,8 +89,27 @@ TTGS/
 | **Frontend** | React 18, TypeScript, TailwindCSS, Vite, Lucide Icons, Chart.js |
 | **Backend** | NestJS 10, TypeScript, Express, Class-Validator, Passport-JWT |
 | **Database & ORM** | PostgreSQL 15, Prisma ORM |
-| **DevOps & Container** | Docker, Docker Compose, Nginx |
-| **Utilities** | Nodemailer, IndexedDB (idb-keyval), BCrypt |
+| **DevOps & CI/CD** | GitHub Actions, Docker, Docker Compose, Nginx |
+| **Utilities** | Mammoth (DOCX parsing), Nodemailer, IndexedDB (idb-keyval), BCrypt |
+
+---
+
+## ⚙️ Automated CI/CD Workflow (GitHub Actions)
+
+This repository enforces automated continuous integration and build verification on every pull request and push to `main`:
+
+```mermaid
+flowchart LR
+    Push[👨‍💻 Code Commit / PR] --> BackendCI[🧪 Backend CI\n• npm ci\n• prisma generate\n• Unit Tests\n• NestJS Build]
+    Push --> FrontendCI[✨ Frontend CI\n• npm ci\n• TypeScript Check\n• Vite Production Build]
+    BackendCI --> DockerValidation[🐳 Docker Image Build\n• Backend & Frontend Containers]
+    FrontendCI --> DockerValidation
+    DockerValidation --> Release[🚀 Deployment Ready]
+```
+
+- **Backend Pipeline:** Node.js 20 environment $\rightarrow$ dependency caching $\rightarrow$ Prisma Client generation $\rightarrow$ Jest Unit Testing $\rightarrow$ production compilation.
+- **Frontend Pipeline:** Type validation (`tsc -b`) $\rightarrow$ asset optimization $\rightarrow$ Vite production bundle.
+- **Containerization Check:** Multi-stage Dockerfile validation ensuring zero runtime deployment regressions.
 
 ---
 

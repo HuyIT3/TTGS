@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClassStatus, ApplicationStatus, Role } from '@prisma/client';
+import * as mammoth from 'mammoth';
 
 @Injectable()
 export class ClassesService {
@@ -328,16 +329,21 @@ export class ClassesService {
     });
   }
 
-  async generateTestFromPdf(fileBuffer: Buffer, subject: string): Promise<any[]> {
-    const base64Data = fileBuffer.toString('base64');
-
+  async generateTestFromFile(fileBuffer: Buffer, subject: string, originalName: string = '', mimeType: string = ''): Promise<any[]> {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new BadRequestException('Gemini API Key chưa được cấu hình trên máy chủ.');
     }
 
+    const isDocx = originalName.toLowerCase().endsWith('.docx') || 
+                  originalName.toLowerCase().endsWith('.doc') || 
+                  mimeType.includes('word') || 
+                  mimeType.includes('officedocument');
+
+    let requestBodyContents: any[] = [];
+
     const systemPrompt = `Bạn là một trợ lý AI thông minh chuyên về giáo dục. 
-Nhiệm vụ của bạn là đọc toàn bộ đề thi môn ${subject || 'Toán học'} trong file PDF đính kèm (đây có thể là file PDF dạng văn bản hoặc dạng quét ảnh chụp đề thi) và chuyển đổi nó thành một bộ câu hỏi trắc nghiệm chuẩn hóa ở định dạng JSON.
+Nhiệm vụ của bạn là đọc toàn bộ đề thi môn ${subject || 'Toán học'} trong tài liệu đính kèm (file PDF hoặc file Word DOCX) và chuyển đổi nó thành một bộ câu hỏi trắc nghiệm chuẩn hóa ở định dạng JSON.
 
 Đề thi bao gồm 3 phần, bạn phải trích xuất đầy đủ tất cả các câu hỏi của cả 3 phần:
 - PHẦN I: Gồm các câu hỏi trắc nghiệm lựa chọn đơn (MCQ), trích xuất đầy đủ tất cả các câu.
@@ -363,9 +369,39 @@ YÊU CẦU ĐẶC BIỆT:
    - Hãy chuyển đổi sang ký hiệu Unicode dễ đọc (ví dụ: viết vectơ AB thành "vectơ AB" hoặc dùng ký tự mũi tên "AB →" hoặc viết rõ "vectơ BA + vectơ A'C'"). Tránh viết các công thức thô thiếu định dạng.
 2. Đối với các câu hỏi có hình vẽ minh họa hoặc bảng biểu:
    - Vì không hiển thị được trực tiếp hình ảnh, hãy mô tả ngắn gọn/chi tiết các thông số của hình vẽ trực tiếp vào nội dung câu hỏi để học sinh có thể hiểu đề bài và giải được mà không cần nhìn hình (Ví dụ: mô tả hình dạng, cạnh, góc, tọa độ các điểm có trong hình vẽ...).
-3. Hãy cố gắng trích xuất tối đa và đầy đủ tất cả các câu hỏi của cả 3 phần có trong file PDF đề thi này. Không bỏ sót phần nào.
+3. Hãy cố gắng trích xuất tối đa và đầy đủ tất cả các câu hỏi của cả 3 phần có trong đề thi này. Không bỏ sót phần nào.
 
 Hãy trả về duy nhất mảng JSON thô:`;
+
+    if (isDocx) {
+      try {
+        const mammothResult = await mammoth.extractRawText({ buffer: fileBuffer });
+        const docxText = mammothResult.value;
+        requestBodyContents = [{
+          parts: [{
+            text: `NỘI DUNG VĂN BẢN TRÍCH XUẤT TỪ FILE WORD (.DOCX):\n\n${docxText}\n\n${systemPrompt}`
+          }]
+        }];
+      } catch (docErr) {
+        console.error('Failed to extract text from DOCX:', docErr);
+        throw new BadRequestException('Không thể đọc nội dung file Word (.docx). Vui lòng kiểm tra lại file.');
+      }
+    } else {
+      const base64Data = fileBuffer.toString('base64');
+      requestBodyContents = [{
+        parts: [
+          {
+            inlineData: {
+              mimeType: 'application/pdf',
+              data: base64Data
+            }
+          },
+          {
+            text: systemPrompt
+          }
+        ]
+      }];
+    }
 
     try {
       const response = await fetch(
@@ -376,19 +412,7 @@ Hãy trả về duy nhất mảng JSON thô:`;
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            contents: [{
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: 'application/pdf',
-                    data: base64Data
-                  }
-                },
-                {
-                  text: systemPrompt
-                }
-              ]
-            }]
+            contents: requestBodyContents
           }),
         }
       );
