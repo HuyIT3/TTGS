@@ -10,7 +10,7 @@
 [![Docker](https://img.shields.io/badge/Deploy-Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 🌐 **Live Demo:** [https://giasuhoanghuy.netlify.app](https://giasuhoanghuy.netlify.app)  
-🌟 **Developer Portfolio:** [https://duhoanghuy.netlify.app](https://duhoanghuy.netlify.app) *(or [https://HuyIT3.github.io](https://HuyIT3.github.io))*  
+🌟 **Developer Portfolio:** [https://duhoanghuy.netlify.app](https://duhoanghuy.netlify.app) 
 📦 **Repository:** [https://github.com/HuyIT3/TTGS](https://github.com/HuyIT3/TTGS)
 
 ---
